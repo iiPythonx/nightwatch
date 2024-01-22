@@ -23,16 +23,19 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "uvicorn",
-    "fastapi",
     "websockets",
-    "orjson"
+    "orjson",
+    "urwid"
 ]
 
 [project.optional-dependencies]
 dev = [
     "hatch",
     "build"
+]
+serve = [
+    "uvicorn",
+    "fastapi"
 ]
 
 [project.urls]

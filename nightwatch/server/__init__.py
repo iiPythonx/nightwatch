@@ -33,28 +33,28 @@ class Manager():
 
     async def _message(self, ws: WebSocket, text: str) -> None:
         if ws not in self.connections:
-            return await ws.send_json({"error": "You must identify before sending a message."})
+            return await ws.send_json({"text": "You must identify before sending a message."})
 
         elif not text.strip():
-            return await ws.send_json({"error": "You cannot send an empty message."})
+            return await ws.send_json({"text": "You cannot send an empty message."})
 
         elif len(text) > 300:
-            return await ws.send_json({"error": "Message is too large, maximum limit is 300 characters."})
+            return await ws.send_json({"text": "Message is too large, maximum limit is 300 characters."})
 
         await self.broadcast({"name": self.connections[ws], "text": text})
 
     async def _identify(self, ws: WebSocket, name: str) -> None:
         if not name.strip():
-            return await ws.send_json({"error": "No username specified."})
+            return await ws.send_json({"text": "No username specified."})
         
         elif ws in self.connections:
-            return await ws.send_json({"error": "You have already identified."})
+            return await ws.send_json({"text": "You have already identified."})
 
         elif name in self.connections.values():
-            return await ws.send_json({"error": "Specified username is already taken."})
+            return await ws.send_json({"text": "Specified username is already taken."})
 
         elif len(name) > 30:
-            return await ws.send_json({"error": "Specified username is too large, maximum is 30 characters."})
+            return await ws.send_json({"text": "Specified username is too large, maximum is 30 characters."})
 
         self.connections[ws] = name
         await ws.send_json({"online": len(self.connections), "name": server_name})
@@ -64,14 +64,14 @@ class Manager():
             return await ws.close()
 
         elif message["type"] not in self.commands:
-            return await ws.send_json({"error": "Specified type is invalid."})
+            return await ws.send_json({"text": "Specified type is invalid."})
 
         # Handle command
         args = []
         callback, arg_list = self.commands[message["type"]]
         for _ in arg_list:
             if _ not in message:
-                return await ws.send_json({"error": f"Missing argument: '{_}'."})
+                return await ws.send_json({"text": f"Missing argument: '{_}'."})
 
             args.append(message[_])
 
