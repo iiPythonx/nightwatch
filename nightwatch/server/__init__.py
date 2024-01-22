@@ -2,10 +2,17 @@
 
 # Modules
 from fastapi import FastAPI, WebSocket
+
 from .patches import iter_binary_json, BrokenClient
 
+from nightwatch import __version__
+from nightwatch.config import config
+
 # Initialization
-app = FastAPI()
+print(f"✨ Nightwatch | v{__version__}")
+
+server_name = config["server.name"] or "Untitled Server"
+app = FastAPI(openapi_url = None)
 
 # Manager class
 class Manager():
@@ -50,7 +57,7 @@ class Manager():
             return await ws.send_json({"error": "Specified username is too large, maximum is 30 characters."})
 
         self.connections[ws] = name
-        await ws.send_json({"online": len(self.connections), "name": "iiPython's Nightwatch Server"})
+        await ws.send_json({"online": len(self.connections), "name": server_name})
 
     async def handle_message(self, ws: WebSocket, message: dict) -> None:
         if "type" not in message:

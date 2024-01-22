@@ -6,8 +6,7 @@ import websockets
 from threading import Thread
 
 from nightwatch import __version__
-
-from .config import config
+from nightwatch.config import config
 
 from .extra.ui import ui
 from .extra.select import menu

@@ -8,9 +8,9 @@ from pathlib import Path
 from getpass import getuser
 
 # Initialization
-config_path = Path(os.path.expanduser("~")) / ".config/nightwatch/client.json"
+config_path = Path(os.path.expanduser("~")) / ".config/nightwatch/config.json"
 if os.name == "nt":
-    config_path = Path(f"C:\\Users\\{getuser()}\\AppData\\Local\\Nightwatch\\client.json")
+    config_path = Path(f"C:\\Users\\{getuser()}\\AppData\\Local\\Nightwatch\\config.json")
 
 config_path.parent.mkdir(exist_ok = True)
 
