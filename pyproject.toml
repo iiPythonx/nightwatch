@@ -5,9 +5,12 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["nightwatch"]
 
+[tool.hatch.version]
+path = "nightwatch/__init__.py"
+
 [project]
 name = "nightwatch-chat"
-version = "0.0.1"
+dynamic = ["version"]
 authors = [
     { name = "iiPython", email = "ben@iipython.dev" },
 ]
@@ -18,6 +21,18 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "uvicorn",
+    "fastapi",
+    "websockets",
+    "orjson"
+]
+
+[project.optional-dependencies]
+dev = [
+    "hatch",
+    "build"
 ]
 
 [project.urls]
