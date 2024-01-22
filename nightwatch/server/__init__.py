@@ -1,9 +1,7 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
-from fastapi import FastAPI
-from starlette.websockets import WebSocket, WebSocketState
-
+from fastapi import FastAPI, WebSocket
 from .patches import iter_binary_json, BrokenClient
 
 # Initialization
@@ -88,6 +86,3 @@ async def gateway_endpoint(websocket: WebSocket) -> None:
     # Clean up and free username
     if websocket in manager.connections:
         del manager.connections[websocket]
-
-    if websocket.application_state == WebSocketState.CONNECTED:
-        await websocket.close()
