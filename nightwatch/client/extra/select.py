@@ -4,7 +4,7 @@
 import sys
 from typing import List
 
-from .iipython import color, readchar, keys
+from ..vendor.iipython import color, readchar, keys
 
 # Main menu class
 class MenuHandler(object):

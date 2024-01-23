@@ -1,37 +1,46 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
-import asyncio
-import websockets
+import urwid
 from threading import Thread
+
+import websockets
+from websockets.sync.client import connect
 
 from nightwatch import __version__
 from nightwatch.config import config
 
-from .extra.ui import ui
+from .extra.ui import NightwatchUI
 from .extra.select import menu
 from .extra.wswrap import ORJSONWebSocket
 
 # Connection handler
-async def connect(host: str, port: int) -> None:
+def connect_loop(host: str, port: int) -> None:
     destination = f"ws{'s' if port == 443 else ''}://{host}:{port}/gateway"
     try:
-        async with websockets.connect(destination) as ws:
+        with connect(destination) as ws:
             ws = ORJSONWebSocket(ws)
 
             # Handle identification payload
-            await ws.send({"type": "identify", "name": config["username"]})
-            response = await ws.recv()
+            ws.send({"type": "identify", "name": config["username"]})
+            response = ws.recv()
             if "error" in response:
                 exit(f"\nCould not connect to {destination}. Additional details:\n{response['error']}")
 
-            # Start the input thread
-            Thread(target = asyncio.run, args = [ui.input_loop(ws)]).start()
+            # Create UI
+            ui = NightwatchUI(ws)
+            loop = urwid.MainLoop(ui.frame, [])
 
-            # Enter the mainloop
-            ui.on_ready(response)
-            while ws.ws:
-                ui.on_message(await ws.recv())
+            # Handle messages
+            def message_loop(ws: ORJSONWebSocket, ui: NightwatchUI) -> None:
+                while ws.ws:
+                    ui.on_message(ws.recv())
+
+            Thread(target = message_loop, args = [ws, ui]).start()
+
+            # Start mainloop
+            ui.on_ready(loop, response)
+            loop.run()
 
     except websockets.exceptions.InvalidURI:
         exit(f"\nCould not connect to {destination} due to an HTTP redirect.\nPlease ensure you entered the correct address.")
@@ -75,4 +84,4 @@ def start_client(
         host, port = address.split(":")
 
     # Connect to server
-    asyncio.run(connect(host, port))
+    connect_loop(host, port)

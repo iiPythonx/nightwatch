@@ -9,8 +9,8 @@ class ORJSONWebSocket():
     def __init__(self, ws: WebSocketCommonProtocol) -> None:
         self.ws = ws
 
-    async def recv(self) -> dict:
-        return orjson.loads(await self.ws.recv())
+    def recv(self) -> dict:
+        return orjson.loads(self.ws.recv())
 
-    async def send(self, data: dict) -> None:
-        await self.ws.send(orjson.dumps(data))
+    def send(self, data: dict) -> None:
+        self.ws.send(orjson.dumps(data))
