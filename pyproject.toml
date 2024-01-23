@@ -25,7 +25,8 @@ classifiers = [
 dependencies = [
     "websockets",
     "orjson",
-    "urwid"
+    "urwid",
+    "nanoid"
 ]
 
 [project.optional-dependencies]

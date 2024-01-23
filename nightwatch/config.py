@@ -33,7 +33,14 @@ class Configuration():
         return v
 
     def set(self, key: str, value: typing.Any) -> None:
-        self.config[key] = value
+        v = self.config
+        for k in key.split(".")[:-1]:
+            if k not in v:
+                v[k] = {}
+
+            v = v[k]
+
+        v[key.split(".")[-1]] = value
         with self.config_path.open("w+") as fh:
             fh.write(json.dumps(self.config, indent = 4))
 

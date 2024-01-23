@@ -20,7 +20,8 @@ class Manager():
         self.connections = {}
         self.commands = {
             "message": (self._message, ["text"]),
-            "identify": (self._identify, ["name"])
+            "identify": (self._identify, ["name"]),
+            "members": (self._members, [])
         }
     
     async def broadcast(self, data: dict) -> None:
@@ -59,6 +60,9 @@ class Manager():
         self.connections[ws] = name
         await ws.send_json({"online": len(self.connections), "name": server_name})
 
+    async def _members(self, ws: WebSocket) -> None:
+        await ws.send_json({"members": list(self.connections.values())})
+
     async def handle_message(self, ws: WebSocket, message: dict) -> None:
         if "type" not in message:
             return await ws.close()
@@ -67,6 +71,9 @@ class Manager():
             return await ws.send_json({"text": "Specified type is invalid."})
 
         # Handle command
+        if "callback" in message:
+            setattr(ws, "callback", message["callback"])
+
         args = []
         callback, arg_list = self.commands[message["type"]]
         for _ in arg_list:
@@ -79,11 +86,27 @@ class Manager():
 
 manager = Manager()
 
+# Custom websocket wrapper
+class Websocket():
+    def __init__(self, ws: WebSocket) -> None:
+        self.ws, self.callback = ws, None
+        self.receive_json = self.ws.receive_json
+
+    async def send_json(self, data: dict) -> None:
+        if self.callback is not None:
+            data["callback"] = self.callback
+
+        self.callback = None
+        return await self.ws.send_json(data)
+
 # Handle websocket routing
 @app.websocket("/gateway")
 async def gateway_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
+
+    # Main loop
     try:
+        websocket = Websocket(websocket)
         async for message in iter_binary_json(websocket):
             await manager.handle_message(websocket, message)
 
