@@ -29,12 +29,20 @@ def connect_loop(host: str, port: int) -> None:
 
             # Create UI
             ui = NightwatchUI(ws)
-            loop = urwid.MainLoop(ui.frame, [])
+            loop = urwid.MainLoop(ui.frame, [
+                ("yellow", "yellow", ""),
+                ("gray", "dark gray", ""),
+                ("green", "dark green", "")
+            ])
 
             # Handle messages
             def message_loop(ws: ORJSONWebSocket, ui: NightwatchUI) -> None:
-                while ws.ws:
-                    ui.on_message(ws.recv())
+                try:
+                    while ws.ws:
+                        ui.on_message(ws.recv())
+
+                except websockets.exceptions.ConnectionClosed:
+                    return
 
             Thread(target = message_loop, args = [ws, ui]).start()
 
@@ -84,4 +92,9 @@ def start_client(
         host, port = address.split(":")
 
     # Connect to server
-    connect_loop(host, port)
+    try:
+        connect_loop(host, port)
+
+    except KeyboardInterrupt:
+        print("\033[5A\033[0J", end = "")  # Reset back up to the Nightwatch label
+        print(f"Goodbye, {config['username']}.")
