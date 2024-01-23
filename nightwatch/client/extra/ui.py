@@ -8,8 +8,6 @@ from types import FunctionType
 
 import urwid
 
-from nightwatch.config import config
-
 from .commands import commands
 from .wswrap import ORJSONWebSocket
 from ..vendor.scroll import Scrollable, ScrollBar
@@ -59,22 +57,22 @@ class NightwatchUI():
 
         self.websocket.send({"type": "message", "text": text})
 
-    def construct_message(self, author: str, content: str, is_command: bool = False) -> None:
+    def construct_message(self, author: str, content: str, user_color: str = "gray") -> None:
         visible_author = author if author != self.last_author else " " * len(author)
         now, time_string = datetime.now(), ""
         if (author != self.last_author) or ((now - self.last_time).total_seconds() > 300):
             time_string = now.strftime("%I:%M %p") + "  "  # Right padding for the scrollbar
 
         self.pile.contents.append((urwid.Columns([
-            (len(visible_author), urwid.Text(("yellow" if not is_command else "gray", visible_author))),
-            (3, urwid.Text(("gray", " | "))),
+            (len(visible_author), urwid.Text((user_color, visible_author))),
+            (3, urwid.Text(("sep", " | "))),
             ("weight", 4, urwid.Text(content)),
-            (len(time_string) + 2, urwid.Text((config["colors.time"] or "green", time_string), align = "right"))  # +2 adds left padding
+            (len(time_string) + 2, urwid.Text(("time", time_string), align = "right"))  # +2 adds left padding
         ]), self.pile.options()))
         self.last_author, self.last_time = author, now
 
-    def add_message(self, author: str, content: str) -> None:
-        self.construct_message(author, content)
+    def add_message(self, author: str, content: str, user_color: str = "gray") -> None:
+        self.construct_message(author, content, user_color)
 
         # Scroll to the end (if we haven't manually moved)
         if len(self.pile.contents) > 50:
@@ -90,7 +88,14 @@ class NightwatchUI():
             del self.websocket.callbacks[data["callback"]]
             return callback(data)
 
-        self.add_message(data.get("name", "Nightwatch"), data["text"])
+        user = data.get("user", {"name": "Nightwatch", "color": "#cc0000"})
+
+        # Handle colors and fallbacks
+        color_code = f"user-{user['name']}"
+        self.loop.screen.register_palette_entry(color_code, "yellow", "", foreground_high = user["color"])
+
+        # Push message to screen
+        self.add_message(user["name"], data["text"], color_code)
 
     def on_ready(self, loop: urwid.MainLoop, payload: dict) -> None:
         self.loop = loop

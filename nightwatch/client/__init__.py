@@ -22,18 +22,23 @@ def connect_loop(host: str, port: int) -> None:
             ws = ORJSONWebSocket(ws)
 
             # Handle identification payload
-            ws.send({"type": "identify", "name": config["username"]})
+            ws.send({"type": "identify", "name": config["user.name"], "color": config["user.color"]})
             response = ws.recv()
-            if "error" in response:
-                exit(f"\nCould not connect to {destination}. Additional details:\n{response['error']}")
+            if "text" in response:
+                exit(f"\nCould not connect to {destination}. Additional details:\n{response['text']}")
 
             # Create UI
             ui = NightwatchUI(ws)
             loop = urwid.MainLoop(ui.frame, [
                 ("yellow", "yellow", ""),
-                ("gray", "dark gray", ""),
+                ("gray", "dark gray", "", "", "#555753", ""),
                 ("green", "dark green", "")
             ])
+            loop.screen.set_terminal_properties(2 ** 24)  # Activate 24-bit color mode
+
+            # Individual components
+            loop.screen.register_palette_entry("time", "dark green", "", foreground_high = config["colors.time"] or "#00FF00")
+            loop.screen.register_palette_entry("sep", "dark gray", "", foreground_high = config["colors.sep"] or "#555753")
 
             # Handle messages
             def message_loop(ws: ORJSONWebSocket, ui: NightwatchUI) -> None:
@@ -61,14 +66,14 @@ def start_client(
     address: str = None,
     username: str = None
 ):
-    username = username or config["username"]
+    username = username or config["user.name"]
 
     # Start main UI
     print(f"\033[H\033[2J✨ Nightwatch | v{__version__}\n")
     if username is None:
         print("Hello! It seems that this is your first time using Nightwatch.")
         print("Before you can connect to a server, please set your desired username.\n")
-        config.set("username", input("Username: "))
+        config.set("user.name", input("Username: "))
         print("\033[4A\033[0J", end = "")  # Reset back up to the Nightwatch label
 
     # Handle server address
@@ -78,7 +83,7 @@ def start_client(
             servers = ["nightwatch.iipython.dev"]
             config.set("servers", servers)
 
-        print(f"Hello, {config['username']}. Please select a Nightwatch server to connect to:")
+        print(f"Hello, {config['user.name']}. Please select a Nightwatch server to connect to:")
         address = menu.show(servers)
         print()
 
@@ -97,4 +102,4 @@ def start_client(
 
     except KeyboardInterrupt:
         print("\033[5A\033[0J", end = "")  # Reset back up to the Nightwatch label
-        print(f"Goodbye, {config['username']}.")
+        print(f"Goodbye, {config['user.name']}.")

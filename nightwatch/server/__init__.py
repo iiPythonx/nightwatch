@@ -1,6 +1,7 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
+import re
 from fastapi import FastAPI, WebSocket
 
 from .patches import iter_binary_json, BrokenClient
@@ -11,17 +12,20 @@ from nightwatch.config import config
 # Initialization
 print(f"✨ Nightwatch | v{__version__}")
 
-server_name = config["server.name"] or "Untitled Server"
 app = FastAPI(openapi_url = None)
+
+# Constants
+server_name = config["server.name"] or "Untitled Server"
+hex_regex = re.compile(r"^#(?:[0-9a-fA-F]{3}){1,2}$")
 
 # Manager class
 class Manager():
     def __init__(self) -> None:
         self.connections = {}
         self.commands = {
-            "message": (self._message, ["text"]),
-            "identify": (self._identify, ["name"]),
-            "members": (self._members, [])
+            "message": (self._message, ["text"], []),
+            "identify": (self._identify, ["name", "color"], ["color"]),
+            "members": (self._members, [], [])
         }
     
     async def broadcast(self, data: dict) -> None:
@@ -36,16 +40,22 @@ class Manager():
         if ws not in self.connections:
             return await ws.send_json({"text": "You must identify before sending a message."})
 
-        elif not text.strip():
+        text = str(text)
+        if not text.strip():
             return await ws.send_json({"text": "You cannot send an empty message."})
 
         elif len(text) > 300:
             return await ws.send_json({"text": "Message is too large, maximum limit is 300 characters."})
 
-        await self.broadcast({"name": self.connections[ws], "text": text})
+        user = self.connections[ws]
+        await self.broadcast({"user": user, "text": text})
 
-    async def _identify(self, ws: WebSocket, name: str) -> None:
-        if not name.strip():
+    async def _identify(self, ws: WebSocket, name: str, color: str) -> None:
+        color = str(color or "")
+        if color and not re.search(hex_regex, color):
+            return await ws.send_json({"text": "Specified user color is not a valid HEX code."})
+
+        elif not name.strip():
             return await ws.send_json({"text": "No username specified."})
         
         elif ws in self.connections:
@@ -57,11 +67,11 @@ class Manager():
         elif len(name) > 30:
             return await ws.send_json({"text": "Specified username is too large, maximum is 30 characters."})
 
-        self.connections[ws] = name
+        self.connections[ws] = {"name": name, "color": color or "yellow"}
         await ws.send_json({"online": len(self.connections), "name": server_name})
 
     async def _members(self, ws: WebSocket) -> None:
-        await ws.send_json({"members": list(self.connections.values())})
+        await ws.send_json({"members": [u["name"] for u in self.connections.values()]})
 
     async def handle_message(self, ws: WebSocket, message: dict) -> None:
         if "type" not in message:
@@ -75,12 +85,12 @@ class Manager():
             setattr(ws, "callback", message["callback"])
 
         args = []
-        callback, arg_list = self.commands[message["type"]]
+        callback, arg_list, optional = self.commands[message["type"]]
         for _ in arg_list:
-            if _ not in message:
+            if _ not in message and _ not in optional:
                 return await ws.send_json({"text": f"Missing argument: '{_}'."})
 
-            args.append(message[_])
+            args.append(message.get(_, None))
 
         await callback(ws, *args)
 
