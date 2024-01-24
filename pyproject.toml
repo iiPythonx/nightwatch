@@ -5,6 +5,9 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["nightwatch"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.hatch.version]
 path = "nightwatch/__init__.py"
 
@@ -25,7 +28,7 @@ classifiers = [
 dependencies = [
     "websockets",
     "orjson",
-    "urwid",
+    "urwid@git+https://github.com/iiPythonx/urwid",
     "nanoid"
 ]
 
