@@ -1,9 +1,10 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
-import urwid
+import os
 from threading import Thread
 
+import urwid
 import websockets
 from websockets.sync.client import connect
 
@@ -13,6 +14,10 @@ from nightwatch.config import config
 from .extra.ui import NightwatchUI
 from .extra.select import menu
 from .extra.wswrap import ORJSONWebSocket
+
+# Initialization
+if os.name == "nt":
+    urwid.set_encoding("utf-8")
 
 # Connection handler
 def connect_loop(host: str, port: int) -> None:
