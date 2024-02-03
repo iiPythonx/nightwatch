@@ -52,23 +52,20 @@ class Manager():
 
     async def _identify(self, ws: WebSocket, name: str, color: str) -> None:
         color = str(color or "")
-        if color and not re.search(hex_regex, color):
-            return await ws.send_json({"text": "Specified user color is not a valid HEX code."})
-
-        elif not name.strip():
-            return await ws.send_json({"text": "No username specified."})
-        
-        elif ws in self.connections:
-            return await ws.send_json({"text": "You have already identified."})
-
-        elif name in self.connections.values():
-            return await ws.send_json({"text": "Specified username is already taken."})
-
-        elif len(name) > 30:
-            return await ws.send_json({"text": "Specified username is too large, maximum is 30 characters."})
+        for check in [
+            (lambda: color and not re.search(hex_regex, color), "Specified user color is not a valid HEX code."),
+            (lambda: not name.strip(), "No username specified."),
+            (lambda: name.lower() in ["nightwatch", "admin", "administrator", "moderator"], "Specified username is reserved."),
+            (lambda: ws in self.connections, "You have already identified."),
+            (lambda: name in [u["name"] for u in self.connections.values()], "Specified username is already taken."),
+            (lambda: len(name) > 30, "Specified username is too large. Maximum is 30 characters.")
+        ]:
+            if check[0]():
+                return await ws.send_json({"text": check[1]})
 
         self.connections[ws] = {"name": name, "color": color or "yellow"}
         await ws.send_json({"online": len(self.connections), "name": server_name})
+        await self.broadcast({"text": f"{name} joined the chatroom."})
 
     async def _members(self, ws: WebSocket) -> None:
         await ws.send_json({"members": [u["name"] for u in self.connections.values()]})

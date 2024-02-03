@@ -86,16 +86,20 @@ class NightwatchUI():
         self.loop.draw_screen()
 
     def on_message(self, data: dict) -> None:
-        if "callback" in data:
+        if not hasattr(self, "loop"):
+            return  # We aren't even initialized yet
+
+        elif "callback" in data:
             callback = self.websocket.callbacks[data["callback"]]
             del self.websocket.callbacks[data["callback"]]
             return callback(data)
 
-        user = data.get("user", {"name": "Nightwatch", "color": "#cc0000"})
+        user, color_code = data.get("user", {"name": "Nightwatch"}), "gray"
+        if user["name"] != "Nightwatch":
 
-        # Handle colors and fallbacks
-        color_code = f"user-{user['name']}"
-        self.loop.screen.register_palette_entry(color_code, "yellow", "", foreground_high = user["color"])
+            # Handle colors and fallbacks
+            color_code = f"user-{user['name']}"
+            self.loop.screen.register_palette_entry(color_code, "yellow", "", foreground_high = user["color"])
 
         # Push message to screen
         self.add_message(user["name"], data["text"], color_code)
