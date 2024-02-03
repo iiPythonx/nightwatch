@@ -28,7 +28,7 @@ classifiers = [
 dependencies = [
     "websockets",
     "orjson",
-    "urwid@git+https://github.com/iiPythonx/urwid",
+    "urwid",  # NEEDED: urwid@git+https://github.com/iiPythonx/urwid
     "nanoid"
 ]
 
