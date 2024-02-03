@@ -45,6 +45,9 @@ class NightwatchUI():
             command = command(self, self.add_message)
             self.commands[command.name] = command
 
+    def length(self, text: str) -> int:
+        return int(len(text.encode(encoding = "utf_16_le")) / 2)
+
     def send_message(self, text: str) -> None:
         if text[0] == "/":
             splices = shlex.split(text)
@@ -58,13 +61,13 @@ class NightwatchUI():
         self.websocket.send({"type": "message", "text": text})
 
     def construct_message(self, author: str, content: str, user_color: str = "gray") -> None:
-        visible_author = author if author != self.last_author else " " * len(author)
+        visible_author = author if author != self.last_author else " " * self.length(author)
         now, time_string = datetime.now(), ""
         if (author != self.last_author) or ((now - self.last_time).total_seconds() > 300):
             time_string = now.strftime("%I:%M %p") + "  "  # Right padding for the scrollbar
 
         self.pile.contents.append((urwid.Columns([
-            (len(visible_author), urwid.Text((user_color, visible_author))),
+            (self.length(visible_author), urwid.Text((user_color, visible_author))),
             (3, urwid.Text(("sep", " | "))),
             ("weight", 4, urwid.Text(content)),
             (len(time_string) + 2, urwid.Text(("time", time_string), align = "right"))  # +2 adds left padding
