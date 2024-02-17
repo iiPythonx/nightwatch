@@ -8,18 +8,19 @@
     <head>
         <meta charset = "utf8">
         <meta name = "viewport" content = "width=device-width, initial-scale=1">
-        <meta http-equiv = "Content-Security-Policy" content = "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src *;">
+        <meta http-equiv = "Content-Security-Policy" content = "default-src 'self' 'unsafe-inline'; img-src data:; connect-src *;">
 
         <!-- CSS -->
         <link rel = "stylesheet" href = "./css/bootstrap.min.css" type = "text/css">
         <link rel = "stylesheet" href = "./css/index.css" type = "text/css">
+        <link rel = "stylesheet" href = "./css/nano.min.css" type = "text/css">
 
         <title>Nightwatch</title>
     </head>
     <body data-bs-theme = "dark">
 
         <!-- CONNECT state -->
-        <div class = "box-center" id = "state-connect">
+        <div class = "box-center" id = "state-connect" style = "width: 350px;">
             <form id = "connect-form">
                 <div class = "mb-4">
                     <label class = "form-label">Server address</label>
@@ -28,6 +29,10 @@
                 <div class = "mb-4">
                     <label class = "form-label">Username</label>
                     <input class = "form-control" id = "connect-username">
+                </div>
+                <div class = "mb-4">
+                    <label class = "form-label">Name color</label>
+                    <div class = "color-picker form-control" style = "height: 38px;"></div>
                 </div>
                 <button type = "submit" class = "w-100 btn btn-primary">Connect</button>
             </form>
@@ -78,9 +83,10 @@
         <!-- JS dependencies -->
         <script src = "./js/jquery.slim.min.js"></script>
         <script src = "./js/nanoid.min.js"></script>
-
+        
         <!-- Nightwatch JS -->
         <script src = "./js/nightwatch.js"></script>
+        <script src = "./js/pickr.min.js"></script>
         <script src = "./js/main.js"></script>
     </body>
 </html>

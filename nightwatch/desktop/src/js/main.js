@@ -5,11 +5,9 @@ class UIStateManager {
     constructor() {
         this.last_state = "#state-connect";
     }
-
     switch(state) {
         state = `#state-${state}`;
         $(this.last_state).css("display", "none");
-
         $(state).css("display", "block");
         this.last_state = state;
     }
@@ -31,7 +29,7 @@ $("#connect-form").on("submit", (e) => {
     // Establish connection
     const nw = new NightwatchServer($("#connect-address").val());
     nw.connected(() => {
-        nw.identify($("#connect-username").val(), "#fefefe", (d) => {
+        nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
             if (d.text) return console.error(d.text);
             ui.switch("messages");
         });
@@ -56,12 +54,17 @@ messageInput.on("keyup", (e) => {
     if (!value.trim().length || value.length >= 300) return;
 
     // Show our message immediately (qol)
-    process_message({
-        user: window.nightwatch.user,
-        text: value
-    });
+    process_message({ user: window.nightwatch.user, text: value });
 
     // Send the actual message to the server
     window.nightwatch.message(value);
     messageInput.val("");
 });
+
+// Handle color selection
+const pickr = Pickr.create({
+    el: ".color-picker", theme: "nano",
+    components: { preview: true, hue: true, opacity: true }
+});
+pickr.on("change", () => { pickr.applyColor(); });
+pickr.on("save", (c) => { window._usercolor = c ? c.toHEXA().toString() : null; });
