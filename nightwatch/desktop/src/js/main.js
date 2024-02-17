@@ -15,6 +15,11 @@ class UIStateManager {
 
 const ui = new UIStateManager();
 
+// Handle notifications
+const notifier = new AWN({
+    icons: { enabled: false }
+});
+
 // Handle message processing
 const container = $("#messages-container");
 function process_message(message) {
@@ -30,7 +35,7 @@ $("#connect-form").on("submit", (e) => {
     const nw = new NightwatchServer($("#connect-address").val());
     nw.connected(() => {
         nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
-            if (d.text) return console.error(d.text);
+            if (d.text) return notifier.alert(d.text);
             ui.switch("messages");
         });
     });
