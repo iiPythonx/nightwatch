@@ -16,13 +16,13 @@ class UIStateManager {
 const ui = new UIStateManager();
 
 // Handle notifications
-const notifier = new AWN({
-    icons: { enabled: false }
-});
+const notifier = new AWN({ icons: { enabled: false } });
+const notificationAudio = new Audio("../audio/notification.mp3");
 
 // Handle message processing
+const appWindow = window.__TAURI__.window.appWindow;
 const container = $("#messages-container");
-function process_message(message) {
+async function process_message(message) {
     if (!message.user) message.user = { name: "Nightwatch", color: "gray" };
     const latest = $(`<li class = "list-group-item"><span style = "color: ${message.user.color}">${message.user.name}</span>: ${message.text}</li>`)[0];
     container.append(latest);
@@ -33,6 +33,9 @@ function process_message(message) {
     if (container[0].scrollHeight - newMessageHeight <= scrollOffset + 10) {
         container[0].scrollTop = container[0].scrollHeight;
     }
+
+    // Handle notifications
+    if (!(await appWindow.isFocused())) notificationAudio.play();
 }
 
 // Handle identification step
