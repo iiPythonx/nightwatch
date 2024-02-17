@@ -24,7 +24,15 @@ const notifier = new AWN({
 const container = $("#messages-container");
 function process_message(message) {
     if (!message.user) message.user = { name: "Nightwatch", color: "gray" };
-    container.append($(`<li class = "list-group-item"><span style = "color: ${message.user.color}">${message.user.name}</span>: ${message.text}</li>`))
+    const latest = $(`<li class = "list-group-item"><span style = "color: ${message.user.color}">${message.user.name}</span>: ${message.text}</li>`)[0];
+    container.append(latest);
+
+    // Handle autoscrolling
+    const newMessageHeight = latest.offsetHeight + parseInt(getComputedStyle(latest).marginBottom);
+    const scrollOffset = container[0].scrollTop + container[0].offsetHeight;
+    if (container[0].scrollHeight - newMessageHeight <= scrollOffset + 10) {
+        container[0].scrollTop = container[0].scrollHeight;
+    }
 }
 
 // Handle identification step
@@ -50,20 +58,15 @@ $("#connect-form").on("submit", (e) => {
 });
 
 // Handle message sending
-const messageInput = $("#message-input");
-messageInput.on("keyup", (e) => {
-    if (e.keyCode !== 13) return;
-
-    // Input sanity check
-    const value = messageInput.val();
-    if (!value.trim().length || value.length >= 300) return;
-
-    // Show our message immediately (qol)
-    process_message({ user: window.nightwatch.user, text: value });
-
-    // Send the actual message to the server
-    window.nightwatch.message(value);
-    messageInput.val("");
+const messageInput = document.getElementById("message-input");
+messageInput.addEventListener("keypress", (e) => {
+    if (e.key == "Enter") {
+        const value = e.target.value;
+        if (!value.trim().length || value.length >= 300) return;
+        process_message({ user: window.nightwatch.user, text: value });
+        window.nightwatch.message(value);
+        messageInput.value = "";
+    }
 });
 
 // Handle color selection
