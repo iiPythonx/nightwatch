@@ -2,9 +2,9 @@
 
 # Modules
 import re
-from fastapi import FastAPI, WebSocket
+import json
 
-from .patches import iter_binary_json, BrokenClient
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
 from nightwatch import __version__
 from nightwatch.config import config
@@ -117,7 +117,7 @@ async def gateway_endpoint(websocket: WebSocket) -> None:
         async for message in websocket.ws.iter_json():
             await manager.handle_message(websocket, message)
 
-    except BrokenClient:
+    except (KeyError, WebSocketDisconnect, json.JSONDecodeError):
         pass
 
     # Clean up and free username
