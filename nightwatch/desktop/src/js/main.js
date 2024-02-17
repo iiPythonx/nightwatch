@@ -47,6 +47,7 @@ $("#connect-form").on("submit", (e) => {
     nw.connected(() => {
         nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
             if (d.text) return notifier.alert(d.text);
+            $("#server-name").text(d.name);
             ui.switch("messages");
         });
     });
