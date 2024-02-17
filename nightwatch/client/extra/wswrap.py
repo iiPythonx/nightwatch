@@ -16,7 +16,7 @@ class ORJSONWebSocket():
         return orjson.loads(self.ws.recv())
 
     def send(self, data: dict) -> None:
-        self.ws.send(orjson.dumps(data))
+        self.ws.send(orjson.dumps(data).decode())
 
     def callback(self, payload: dict, callback: FunctionType) -> None:
         callback_id = generate()

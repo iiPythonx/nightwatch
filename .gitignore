@@ -6,3 +6,4 @@ __pycache__/
 
 # Hide distributions
 dist/
+node_modules/

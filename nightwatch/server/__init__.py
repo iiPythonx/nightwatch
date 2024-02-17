@@ -114,7 +114,7 @@ async def gateway_endpoint(websocket: WebSocket) -> None:
     # Main loop
     try:
         websocket = Websocket(websocket)
-        async for message in iter_binary_json(websocket):
+        async for message in websocket.ws.iter_json():
             await manager.handle_message(websocket, message)
 
     except BrokenClient:

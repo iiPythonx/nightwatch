@@ -1,0 +1,39 @@
+<!--
+    Copyright (c) 2024 iiPython
+    https://github.com/iiPythonx/nightwatch
+-->
+
+<!doctype html>
+<html lang = "en">
+    <head>
+        <meta charset = "utf8">
+        <meta name = "viewport" content = "width=device-width, initial-scale=1">
+        <meta http-equiv = "Content-Security-Policy" content = "default-src 'self'; script-src 'self'; connect-src *;">
+
+        <!-- CSS -->
+        <link rel = "stylesheet" href = "./css/bootstrap.min.css" type = "text/css">
+        <link rel = "stylesheet" href = "./css/index.css" type = "text/css">
+
+        <title>Nightwatch</title>
+    </head>
+    <body data-bs-theme = "dark">
+        <div class = "box-center">
+            <form>
+                <div class = "mb-4">
+                    <label class = "form-label">Server address</label>
+                    <input class = "form-control" value = "nightwatch.iipython.dev" placeholder = "Supports hostname & IP">
+                </div>
+                <div class = "mb-4">
+                    <label class = "form-label">Username</label>
+                    <input class = "form-control">
+                </div>
+                <button type = "submit" class = "w-100 btn btn-primary">Connect</button>
+            </form>
+        </div>
+
+        <!-- JS -->
+        <script src = "./js/jquery.slim.min.js"></script>
+        <script src = "./js/nanoid.min.js"></script>
+        <script src = "./js/nightwatch.js"></script>
+    </body>
+</html>

@@ -14,7 +14,7 @@ class BrokenClient(Exception):
 async def iter_binary_json(websocket: WebSocket) -> typing.AsyncIterator[typing.Any]:
     try:
         while True:
-            yield await websocket.receive_json(mode = "binary")
+            yield await websocket.receive_json(mode = "text")
 
     except WebSocketDisconnect:
         pass
