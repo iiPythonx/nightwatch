@@ -4,6 +4,7 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["nightwatch"]
+exclude = ["nightwatch/desktop"]
 
 [tool.hatch.metadata]
 allow-direct-references = true
