@@ -29,4 +29,24 @@ $("#connect-form").on("submit", (e) => {
             ui.switch("messages");
         });
     });
+
+    // Handle messages
+    const container = $("#messages-container");
+    nw.on_message((message) => {
+        if (!message.user) message.user = { name: "Nightwatch", color: "gray" };
+        container.append($(`<li class = "list-group-item"><span style = "color: ${message.user.color}">${message.user.name}</span>: ${message.text}</li>`))
+    });
+
+    // Expose our API
+    window.nightwatch = nw;
+});
+
+// Handle message sending
+const messageInput = $("#message-input");
+messageInput.on("keyup", (e) => {
+    if (e.keyCode !== 13) return;
+    const value = messageInput.val();
+    if (!value.trim().length) return;
+    window.nightwatch.message(value);
+    messageInput.val("");
 });
