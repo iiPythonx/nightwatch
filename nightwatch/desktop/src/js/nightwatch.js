@@ -16,10 +16,21 @@ class NightwatchServer {
     connect() {
         this.socket = new WebSocket(`${this.port == 443 ? 'wss' : 'ws'}://${this.host}:${this.port}/gateway`);
         this.socket.addEventListener("message", (d) => {
-            console.warn(d.data);
+            const data = JSON.parse(d.data);
+            const callback = this._callbacks[data.callback];
+            if (callback) {
+                delete this._callbacks[data.callback];
+                return callback(data);
+            }
+            console.log("[RECV]", data);
         });
+        this.socket.addEventListener("open", () => { if (this._connected) this._connected(); });
     }
-    
+
+    connected(callback) {
+        this._connected = callback;
+    }
+
     send_payload(type, data, callback) {
         if (!this.socket) throw new Error("Current Nightwatch websocket is not connected!");
         if (callback) {
@@ -31,7 +42,7 @@ class NightwatchServer {
     }
 
     // Main events
-    identify(username) {
-        this.send_payload("identify", { name: username, color: "#fefefe" });
+    identify(username, color, callback) {
+        this.send_payload("identify", { name: username, color: color}, callback);
     }
 }

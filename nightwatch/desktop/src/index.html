@@ -17,23 +17,76 @@
         <title>Nightwatch</title>
     </head>
     <body data-bs-theme = "dark">
-        <div class = "box-center">
-            <form>
+
+        <!-- CONNECT state -->
+        <div class = "box-center" id = "state-connect">
+            <form id = "connect-form">
                 <div class = "mb-4">
                     <label class = "form-label">Server address</label>
-                    <input class = "form-control" value = "nightwatch.iipython.dev" placeholder = "Supports hostname & IP">
+                    <input class = "form-control" value = "nightwatch.iipython.dev" placeholder = "Supports hostname & IP" id = "connect-address">
                 </div>
                 <div class = "mb-4">
                     <label class = "form-label">Username</label>
-                    <input class = "form-control">
+                    <input class = "form-control" id = "connect-username">
                 </div>
                 <button type = "submit" class = "w-100 btn btn-primary">Connect</button>
             </form>
         </div>
 
-        <!-- JS -->
+        <!-- MESSAGES state -->
+        <div class = "box-center" id = "state-messages">
+            <nav class = "navbar navbar-expand-sm bg-body-tertiary mb-5 mt-3">
+                <div class = "container-fluid">
+                    <a class = "navbar-brand">Nightwatch Server</a>
+                    <ul class = "navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class = "nav-item">
+                            <a class = "nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                    <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
+                                    <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
+                                </svg>
+                            </a>
+                        </li>
+                        <li class = "nav-item">
+                            <a class = "nav-link">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+            <div id = "messages-layout">
+
+                <!-- Message container -->
+                <ul class = "list-group mb-4" id = "messages-container">
+                    <li class = "list-group-item">An item</li>
+                    <li class = "list-group-item">A second item</li>
+                    <li class = "list-group-item">A third item</li>
+                    <li class = "list-group-item">A fourth item</li>
+                    <li class = "list-group-item">And a fifth one</li>
+                </ul>
+
+                <!-- Input container -->
+                <div class = "input-group">
+                    <input type = "text" class = "form-control" placeholder = "Share some thoughts..." autofocus>
+                    <span class = "input-group-text">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                            <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                        </svg>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- JS dependencies -->
         <script src = "./js/jquery.slim.min.js"></script>
         <script src = "./js/nanoid.min.js"></script>
+
+        <!-- Nightwatch JS -->
         <script src = "./js/nightwatch.js"></script>
+        <script src = "./js/main.js"></script>
     </body>
 </html>
