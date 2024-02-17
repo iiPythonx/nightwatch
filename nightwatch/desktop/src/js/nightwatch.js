@@ -47,7 +47,8 @@ class NightwatchServer {
 
     // Main events
     identify(username, color, callback) {
-        this.send_payload("identify", { name: username, color: color}, callback);
+        this.user = { name: username, color: color };
+        this.send_payload("identify", this.user, callback);
     }
 
     message(content) {
