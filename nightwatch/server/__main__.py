@@ -56,10 +56,6 @@ def ws_close(ws, code, message) -> None:
     user_id = ws.get_user_data()["id"]
     if user_id in nightwatch.connections:
         del nightwatch.connections[user_id]
-        print(f"{user_id} has disconnected")
-
-    else:
-        print(f"Client {ws} has generically disconnected")
 
 def ws_upgrade(res, req, socket_context):
     res.upgrade(
@@ -85,7 +81,7 @@ app.ws(
     }
 )
 app.listen(
-    3000,
+    8080,
     lambda config: print(f"✨ Nightwatch | v{__version__}\nListening on port http://localhost:{config.port} now\n")
 )
 app.run()

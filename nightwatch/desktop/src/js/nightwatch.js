@@ -22,7 +22,7 @@ class NightwatchServer {
                 delete this._callbacks[data.callback];
                 return callback(data);
             }
-            if (data.text && this._onmessage) this._onmessage(data);
+            if (data.type == "message" && this._onmessage) this._onmessage(data);
         });
         this.socket.addEventListener("open", () => { if (this._connected) this._connected(); });
     }
@@ -37,12 +37,13 @@ class NightwatchServer {
 
     send_payload(type, data, callback) {
         if (!this.socket) throw new Error("Current Nightwatch websocket is not connected!");
+        let payload = { data: data };
         if (callback) {
             let callback_id = nanoid();
-            data.callback = callback_id;
+            payload.callback = callback_id;
             this._callbacks[callback_id] = callback;
         }
-        this.socket.send(JSON.stringify({ type: type, ...data }));
+        this.socket.send(JSON.stringify({ type: type, ...payload }));
     }
 
     // Main events

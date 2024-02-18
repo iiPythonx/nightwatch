@@ -46,14 +46,15 @@ $("#connect-form").on("submit", (e) => {
     const nw = new NightwatchServer($("#connect-address").val());
     nw.connected(() => {
         nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
-            if (d.text) return notifier.alert(d.text);
-            $("#server-name").text(d.name);
+            if (d.type == "error") return notifier.alert(d.data.text);
+            $("#server-name").text(d.data.name);
             ui.switch("messages");
         });
     });
 
     // Handle messages
     nw.on_message((message) => {
+        message = message.data;
         if ((message.user && message.user.name !== nw.user?.name) || !message.user) process_message(message);
     });
 
