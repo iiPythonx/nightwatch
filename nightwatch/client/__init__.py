@@ -2,6 +2,7 @@
 
 # Modules
 import os
+from time import sleep
 from threading import Thread
 
 import urwid
@@ -20,14 +21,14 @@ if os.name == "nt":
     urwid.set_encoding("utf-8")
 
 # Connection handler
-def connect_loop(host: str, port: int) -> None:
+def connect_loop(host: str, port: int, username: str) -> None:
     destination = f"ws{'s' if port == 443 else ''}://{host}:{port}/gateway"
     try:
         with connect(destination) as ws:
             ws = ORJSONWebSocket(ws)
 
             # Handle identification payload
-            ws.send({"type": "identify", "data": {"name": config["user.name"], "color": config["user.color"]}})
+            ws.send({"type": "identify", "data": {"name": username, "color": config["user.color"]}})
             response = ws.recv()
             if response["type"] == "error":
                 exit(f"\nCould not connect to {destination}. Additional details:\n{response['data']['text']}")
@@ -52,9 +53,19 @@ def connect_loop(host: str, port: int) -> None:
                         ui.on_message(ws.recv())
 
                 except websockets.exceptions.ConnectionClosed:
-                    return
+                    pass
+
+            def ping_loop(ws: ORJSONWebSocket) -> None:
+                try:
+                    while ws.ws:
+                        ws.send({"type": "ping"})
+                        sleep(10)
+
+                except websockets.exceptions.ConnectionClosed:
+                    pass
 
             Thread(target = message_loop, args = [ws, ui]).start()
+            Thread(target = ping_loop, args = [ws]).start()
 
             # Start mainloop
             ui.on_ready(loop, response["data"])
@@ -88,7 +99,7 @@ def start_client(
             servers = ["nightwatch.iipython.dev"]
             config.set("servers", servers)
 
-        print(f"Hello, {config['user.name']}. Please select a Nightwatch server to connect to:")
+        print(f"Hello, {username}. Please select a Nightwatch server to connect to:")
         address = menu.show(servers)
         print()
 
@@ -103,8 +114,8 @@ def start_client(
 
     # Connect to server
     try:
-        connect_loop(host, port)
+        connect_loop(host, port, username)
 
     except KeyboardInterrupt:
         print("\033[5A\033[0J", end = "")  # Reset back up to the Nightwatch label
-        print(f"Goodbye, {config['user.name']}.")
+        print(f"Goodbye, {username}.")

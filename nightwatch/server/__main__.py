@@ -6,7 +6,7 @@ from nanoid import generate
 from socketify import App, OpCode, CompressOptions
 
 from nightwatch import __version__
-from .core import nightwatch, commands, construct
+from .core import nightwatch, commands, construct, server_user
 
 # Session class
 class Session():
@@ -55,6 +55,15 @@ def ws_message(ws, message, opcode) -> None:
 def ws_close(ws, code, message) -> None:
     user_id = ws.get_user_data()["id"]
     if user_id in nightwatch.connections:
+        ws.publish(
+            "general",
+            construct(
+                "message",
+                text = f"{nightwatch.connections[user_id]['name']} left the chatroom.",
+                user = server_user
+            ),
+            OpCode.TEXT
+        )
         del nightwatch.connections[user_id]
 
 def ws_upgrade(res, req, socket_context):

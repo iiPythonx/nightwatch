@@ -94,16 +94,18 @@ class NightwatchUI():
             del self.websocket.callbacks[data["callback"]]
             return callback(data)
 
-        data = data["data"]
-        user, color_code = data.get("user", {"name": "Nightwatch"}), "gray"
-        if user["name"] != "Nightwatch":
+        match data["type"]:
+            case "message":
+                data = data["data"]
+                user, color_code = data.get("user", {"name": "Nightwatch"}), "gray"
+                if user["name"] != "Nightwatch":
 
-            # Handle colors and fallbacks
-            color_code = f"user-{user['name']}"
-            self.loop.screen.register_palette_entry(color_code, "yellow", "", foreground_high = user["color"])
+                    # Handle colors and fallbacks
+                    color_code = f"user-{user['name']}"
+                    self.loop.screen.register_palette_entry(color_code, "yellow", "", foreground_high = user["color"])
 
-        # Push message to screen
-        self.add_message(user["name"], data["text"], color_code)
+                # Push message to screen
+                self.add_message(user["name"], data["text"], color_code)
 
     def on_ready(self, loop: urwid.MainLoop, payload: dict) -> None:
         self.loop = loop
