@@ -46,7 +46,11 @@ $("#connect-form").on("submit", (e) => {
     const nw = new NightwatchServer($("#connect-address").val());
     nw.connected(() => {
         nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
-            if (d.type == "error") return notifier.alert(d.data.text);
+            if (d.type == "error") {
+                nw.close();
+                delete nw;
+                return notifier.alert(d.data.text);
+            }
             $("#server-name").text(d.data.name);
             ui.switch("messages");
         });

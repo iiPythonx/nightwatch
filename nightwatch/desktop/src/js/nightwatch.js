@@ -25,6 +25,7 @@ class NightwatchServer {
             if (data.type == "message" && this._onmessage) this._onmessage(data);
         });
         this.socket.addEventListener("open", () => { if (this._connected) this._connected(); });
+        this.socket.addEventListener("close", (code) => { if (code == 1006) this.connect(); })
     }
 
     connected(callback) {
@@ -44,6 +45,10 @@ class NightwatchServer {
             this._callbacks[callback_id] = callback;
         }
         this.socket.send(JSON.stringify({ type: type, ...payload }));
+    }
+
+    close() {
+        this.socket.close();
     }
 
     // Main events
