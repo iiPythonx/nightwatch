@@ -81,4 +81,8 @@ def message(self, ws, text: str) -> None:
 def members(self, ws) -> None:
     ws.send(construct("members", list = [u["name"] for u in self.connections.values()]))
 
+@command
+def ping(self, ws) -> None:
+    ws.send(construct("pong"))
+
 commands = cmdlist.commands

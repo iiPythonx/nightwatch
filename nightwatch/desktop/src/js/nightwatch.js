@@ -14,6 +14,7 @@ class NightwatchServer {
     }
 
     connect() {
+        if (this._interval) clearInterval(this._interval);
         this.socket = new WebSocket(`${this.port == 443 ? 'wss' : 'ws'}://${this.host}:${this.port}/gateway`);
         this.socket.addEventListener("message", (d) => {
             const data = JSON.parse(d.data);
@@ -25,7 +26,7 @@ class NightwatchServer {
             if (data.type == "message" && this._onmessage) this._onmessage(data);
         });
         this.socket.addEventListener("open", () => { if (this._connected) this._connected(); });
-        this.socket.addEventListener("close", (code) => { if (code == 1006) this.connect(); })
+        this._interval = setInterval(() => { this.send_payload("ping"); }, 10000);
     }
 
     connected(callback) {
