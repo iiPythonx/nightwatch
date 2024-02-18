@@ -1,17 +1,43 @@
-# Nightwatch
+<h1 align = "center">Nightwatch</h1>
+<div align = "center">
 
-The chatting application to end all chatting applications.  
-Are you like me, where over the past 5 years you've made several terminal chatting apps? No? Just me?
+![Python](https://img.shields.io/badge/Python-%3E=%203.10-4b8bbe?style=for-the-badge&logo=python&logoColor=white)
 
-Regardless,  
-Nightwatch is a modern solution to solve my insatiable need for making chatting apps.
+The chatting application to end all chatting applications. 
 
----
+</div>
 
-Jokes aside, Nightwatch is a terminal based, IRC-like, chatting application for Linux/Windows/Mac OS/Mars Rover.  
-It's based on a modern architecture (FastAPI, Websockets, and a debloated Python client), and is meant to keep it simple.
+# Installation
 
----
+As an end-user, you have multiple clients to pick from when it comes to accessing Nightwatch.  
+Here are two of the standard clients for you to choose from:
+- [Urwid](https://urwid.org/index.html)-based TUI client
+    - Installation is as simple as `pip install nightwatch-chat`.
+    - The client can be started by running `nightwatch` in your terminal.
 
-Project status: **starting development**.  
-This README will be filled out as time goes on.
+- [Tauri](https://tauri.app/)-based desktop client
+    - Download the latest release for your system from [here](https://github.com/iiPythonx/nightwatch/releases/latest).
+    - Alternatively, run it manually:
+        - Install [Rust](https://www.rust-lang.org/).
+        - Follow the [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites).
+        - Install the Tauri CLI: `cargo install tauri-cli`.
+        - Launch via `cargo tauri dev` inside the `nightwatch/desktop/` folder.
+
+# Server Installation
+
+Running a Nightwatch server can be a bit trickier then running the client, but follow along:
+
+- You'll need either [CPython 3.10 or above](https://python.org/downloads), or **preferably**, [PyPy 3.10](https://www.pypy.org/download.html). 
+- Install the following dependencies: `pypy3 -m pip install ujson socketify`.
+- Launch the server via `pypy3 -m nightwatch.server`.
+
+For more possible ways to run the server, please refer to the [socketify.py documentation](https://docs.socketify.dev/cli.html).
+
+# Configuration
+
+Configuration is available at:
+- ***nix systems**: ~/.config/nightwatch/config.json
+- **Windows**: %AppData%\Local\Nightwatch\config.json
+
+The Nightwatch client currently allows you to store custom colors and username data there.  
+The server currently only uses it for `server.name`. Although that is prone to change.
