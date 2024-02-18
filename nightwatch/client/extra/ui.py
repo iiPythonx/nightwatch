@@ -58,7 +58,7 @@ class NightwatchUI():
 
                 text = response
 
-        self.websocket.send({"type": "message", "text": text})
+        self.websocket.send({"type": "message", "data": {"text": text}})
 
     def construct_message(self, author: str, content: str, user_color: str = "gray") -> None:
         visible_author = author if author != self.last_author else " " * self.length(author)
@@ -94,6 +94,7 @@ class NightwatchUI():
             del self.websocket.callbacks[data["callback"]]
             return callback(data)
 
+        data = data["data"]
         user, color_code = data.get("user", {"name": "Nightwatch"}), "gray"
         if user["name"] != "Nightwatch":
 

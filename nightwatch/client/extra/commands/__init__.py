@@ -66,7 +66,7 @@ class MembersCommand(BaseCommand):
 
     def on_execute(self, args: List[str]) -> None:
         def members_callback(response: dict):
-            self.print(", ".join(response["members"]))
+            self.print(", ".join(response["data"]["list"]))
 
         self.ui.websocket.callback({"type": "members"}, members_callback)
 

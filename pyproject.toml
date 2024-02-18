@@ -39,8 +39,8 @@ dev = [
     "build"
 ]
 serve = [
-    "uvicorn",
-    "fastapi"
+    "ujson",
+    "socketify"
 ]
 
 [project.urls]

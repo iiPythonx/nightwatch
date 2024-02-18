@@ -27,10 +27,10 @@ def connect_loop(host: str, port: int) -> None:
             ws = ORJSONWebSocket(ws)
 
             # Handle identification payload
-            ws.send({"type": "identify", "name": config["user.name"], "color": config["user.color"]})
+            ws.send({"type": "identify", "data": {"name": config["user.name"], "color": config["user.color"]}})
             response = ws.recv()
-            if "text" in response:
-                exit(f"\nCould not connect to {destination}. Additional details:\n{response['text']}")
+            if response["type"] == "error":
+                exit(f"\nCould not connect to {destination}. Additional details:\n{response['data']['text']}")
 
             # Create UI
             ui = NightwatchUI(ws)
@@ -57,7 +57,7 @@ def connect_loop(host: str, port: int) -> None:
             Thread(target = message_loop, args = [ws, ui]).start()
 
             # Start mainloop
-            ui.on_ready(loop, response)
+            ui.on_ready(loop, response["data"])
             loop.run()
 
     except websockets.exceptions.InvalidURI:
