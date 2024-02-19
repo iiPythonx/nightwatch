@@ -16,6 +16,14 @@
     overflow-y: scroll;
 }
 
+li.list-group-item p {
+    margin-bottom: 0px;
+}
+
+.form-control:focus {
+    box-shadow: none !important;
+}
+
 /* Handle default block states */
 div[id ^= state] { display: none; }
 div#state-connect { display: block; }

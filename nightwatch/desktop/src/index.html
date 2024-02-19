@@ -8,13 +8,14 @@
     <head>
         <meta charset = "utf8">
         <meta name = "viewport" content = "width=device-width, initial-scale=1">
-        <meta http-equiv = "Content-Security-Policy" content = "default-src 'self' 'unsafe-inline'; img-src data:; connect-src *;">
+        <meta http-equiv = "Content-Security-Policy" content = "default-src 'self' 'unsafe-inline'; img-src data: 'self'; connect-src *;">
 
         <!-- CSS -->
         <link rel = "stylesheet" href = "./css/bootstrap.min.css" type = "text/css">
         <link rel = "stylesheet" href = "./css/index.css" type = "text/css">
         <link rel = "stylesheet" href = "./css/nano.min.css" type = "text/css">
         <link rel = "stylesheet" href = "./css/notifications.css" type = "text/css">
+        <link rel = "stylesheet" href = "./css/emoji.css" type = "text/css">
 
         <title>Nightwatch</title>
     </head>
@@ -82,13 +83,17 @@
         </div>
 
         <!-- JS dependencies -->
-        <script src = "./js/jquery.slim.min.js"></script>
-        <script src = "./js/nanoid.min.js"></script>
+        <script src = "./js/lib/jquery.slim.min.js"></script>
+        <script src = "./js/lib/nanoid.min.js"></script>
         
         <!-- Nightwatch JS -->
         <script src = "./js/nightwatch.js"></script>
-        <script src = "./js/pickr.min.js"></script>
-        <script src = "./js/notifications.js"></script>
+        <script src = "./js/lib/pickr.min.js"></script>
+        <script src = "./js/lib/notifications.min.js"></script>
+        <script src = "./js/lib/marked.min.js"></script>
+        <script src = "./js/lib/purify.min.js"></script>
+        <script src = "./js/lib/emoji.min.js"></script>
+        <script src = "./js/lib/tauri.store.min.js"></script>
         <script src = "./js/main.js"></script>
     </body>
 </html>
