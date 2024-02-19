@@ -94,6 +94,11 @@ $("#connect-form").on("submit", (e) => {
     // Expose our API
     window.nightwatch = nw;
 });
+$("#btn-logout").on("click", () => {
+    window.nightwatch.close();
+    delete window.nightwatch;
+    ui.switch("connect");
+});
 
 // Handle message sending
 const messageInput = document.getElementById("message-input");
