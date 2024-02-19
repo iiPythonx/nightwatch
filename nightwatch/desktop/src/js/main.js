@@ -73,23 +73,23 @@ $("#connect-form").on("submit", (e) => {
 
     // Establish connection
     const nw = new NightwatchServer($("#connect-address").val());
-    nw.connected(() => {
+    const ws_error = (m) => { nw.close(); notifier.alert(m); delete nw; delete window.nightwatch; }  // Cleanest way I could come up with
+
+    // Handle callbacks
+    nw.on_error = () => ws_error("Connection to server failed.");
+    nw.connected = () => {
         nw.identify($("#connect-username").val(), window._usercolor || "#fefefe", (d) => {
-            if (d.type == "error") {
-                nw.close();
-                delete nw;
-                return notifier.alert(d.data.text);
-            }
+            if (d.type == "error") ws_error(d.data.text);
             $("#server-name").text(d.data.name);
             ui.switch("messages");
         });
-    });
+    };
 
     // Handle messages
-    nw.on_message((message) => {
+    nw.on_message = (message) => {
         message = message.data;
         if ((message.user && message.user.name !== nw.user?.name) || !message.user) process_message(message);
-    });
+    };
 
     // Expose our API
     window.nightwatch = nw;

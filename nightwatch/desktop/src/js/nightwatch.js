@@ -23,18 +23,11 @@ class NightwatchServer {
                 delete this._callbacks[data.callback];
                 return callback(data);
             }
-            if (data.type == "message" && this._onmessage) this._onmessage(data);
+            if (data.type == "message" && this.on_message) this.on_message(data);
         });
-        this.socket.addEventListener("open", () => { if (this._connected) this._connected(); });
+        this.socket.addEventListener("error", () => { if (this.on_error) this.on_error(); });
+        this.socket.addEventListener("open", () => { if (this.connected) this.connected(); });
         this._interval = setInterval(() => { this.send_payload("ping"); }, 10000);
-    }
-
-    connected(callback) {
-        this._connected = callback;
-    }
-
-    on_message(callback) {
-        this._onmessage = callback;
     }
 
     send_payload(type, data, callback) {
