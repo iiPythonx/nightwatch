@@ -8,7 +8,7 @@
     },
     "package": {
         "productName": "nightwatch-desktop",
-        "version": "0.7.0"
+        "version": "0.7.1"
     },
     "tauri": {
         "allowlist": {
@@ -54,7 +54,7 @@
             }
         },
         "security": {
-            "csp": "default-src 'self' 'unsafe-inline'; img-src 'self';"
+            "csp": "default-src 'self' 'unsafe-inline'; img-src data: 'self'; connect-src *;"
         },
         "updater": {
             "active": false
