@@ -7,7 +7,7 @@
         "withGlobalTauri": true
     },
     "package": {
-        "productName": "nightwatch-desktop",
+        "productName": "Nightwatch",
         "version": "0.7.2"
     },
     "tauri": {
@@ -22,8 +22,8 @@
             "appimage": {
                 "bundleMediaFramework": true
             },
-            "category": "DeveloperTool",
-            "copyright": "",
+            "category": "SocialNetworking",
+            "copyright": "Copyright (c) 2024 iiPython",
             "deb": {
                 "depends": []
             },
@@ -35,7 +35,8 @@
                 "icons/icon.icns",
                 "icons/icon.ico"
             ],
-            "identifier": "com.iipython.nightwatch",
+            "identifier": "dev.iipython.nightwatch",
+            "publisher": "iiPython",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
@@ -45,7 +46,7 @@
                 "signingIdentity": null
             },
             "resources": [],
-            "shortDescription": "",
+            "shortDescription": "The chatting application to end all chatting applications.",
             "targets": "all",
             "windows": {
                 "certificateThumbprint": null,
