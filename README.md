@@ -2,6 +2,7 @@
 <div align = "center">
 
 ![Python](https://img.shields.io/badge/Python-%3E=%203.10-4b8bbe?style=for-the-badge&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-%3E=%201.60-221f1e?style=for-the-badge&logo=rust&logoColor=white)
 
 The chatting application to end all chatting applications. 
 
@@ -11,15 +12,14 @@ The chatting application to end all chatting applications.
 
 As an end-user, you have multiple clients to pick from when it comes to accessing Nightwatch.  
 Here are two of the standard clients for you to choose from:
-- [Urwid](https://urwid.org/index.html)-based TUI client
+- Terminal Client ([based on urwid](https://urwid.org/index.html))
     - Installation is as simple as `pip install nightwatch-chat`.
     - The client can be started by running `nightwatch` in your terminal.
 
-- [Tauri](https://tauri.app/)-based desktop client
+- Full Desktop App ([based on tauri](https://tauri.app/))
     - Download the latest release for your system from [here](https://github.com/iiPythonx/nightwatch/releases/latest).
     - Alternatively, run it manually:
-        - Install [Rust](https://www.rust-lang.org/).
-        - Follow the [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites).
+        - Follow the instructions from [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) (including installing [Rust](https://rust-lang.org)).
         - Install the Tauri CLI: `cargo install tauri-cli`.
         - Launch via `cargo tauri dev` inside the `nightwatch/desktop/` folder.
 
