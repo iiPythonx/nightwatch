@@ -3,18 +3,17 @@
 # Modules
 from typing import Callable
 
+from . import models
+from .websocket import NightwatchClient
+
 # Handle command registration
 class CommandRegistry():
     def __init__(self) -> None:
-        self.types, self.commands = {}, {}
+        self.commands = {}
 
     def command(self, name: str) -> Callable:
         def callback(function: Callable) -> None:
-            self.types[name] = {
-                k: v for k, v in function.__annotations__.items()
-                if k not in ["state", "client", "return"]
-            }
-            self.commands[name] = function
+            self.commands[name] = (function, function.__annotations__["data"])
 
         return callback
 
@@ -22,5 +21,5 @@ registry = CommandRegistry()
 
 # Setup commands
 @registry.command("identify")
-async def command_identify(state, client, name: str, color: int) -> None:
-    print(state, client, name, color)
+async def command_identify(state, client: NightwatchClient, data: models.IdentifyModel) -> None:
+    print(data)

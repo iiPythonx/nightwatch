@@ -37,6 +37,8 @@ dependencies = [
 serve = [
     "fastapi",
     "pymongo",
+    "pydantic",
+    "pydantic-extra-types",
     "starlette",
     "argon2-cffi",
     "redis[hiredis]",
