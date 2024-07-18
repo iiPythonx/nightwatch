@@ -23,7 +23,10 @@ class CommandRegistry():
 
     def command(self, name: str) -> Callable:
         def callback(function: Callable) -> None:
-            self.commands[name] = (function, function.__annotations__["data"])
+            self.commands[name] = (
+                function,
+                function.__annotations__["data"] if "data" in function.__annotations__ else None
+            )
 
         return callback
 
@@ -45,17 +48,25 @@ async def command_identify(state, client: NightwatchClient, data: models.Identif
     client.identified = True
 
     await client.send("server", name = Constant.SERVER_NAME, online = len(state.clients))
-    websockets.broadcast(state.clients.keys(), orjson.dumps({
+    websockets.broadcast(state.clients, orjson.dumps({
         "type": "message",
         "data": {"text": f"{data.name} joined the chatroom.", "user": Constant.SERVER_USER}
-    }))
+    }).decode())
 
 @registry.command("message")
 async def command_message(state, client: NightwatchClient, data: models.MessageModel) -> None:
     if not client.identified:
         return await client.send("error", text = "You must identify before sending a message.")
 
-    websockets.broadcast(state.clients.keys(), orjson.dumps({
+    websockets.broadcast(state.clients, orjson.dumps({
         "type": "message",
         "data": {"text": data.text, "user": client.user_data}
-    }))
+    }).decode())
+
+@registry.command("members")
+async def command_members(state, client: NightwatchClient) -> None:
+    return await client.send("members", list = list(state.clients.values()))
+
+@registry.command("ping")
+async def command_ping(state, client: NightwatchClient) -> None:
+    return await client.send("pong")

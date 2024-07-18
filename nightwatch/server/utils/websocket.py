@@ -11,13 +11,21 @@ class NightwatchClient():
     data serialization through orjson."""
     def __init__(self, state, client: WebSocketCommonProtocol) -> None:
         self.client = client
-        self.identified = False
+        self.identified, self.callback = False, None
 
         self.state = state
         self.state.add_client(client)
 
     async def send(self, message_type: str, **message_data) -> None:
-        await self.client.send(orjson.dumps({"type": message_type, "data": message_data}))
+        payload = {"type": message_type, "data": message_data}
+        if self.callback is not None:
+            payload["callback"] = self.callback
+            self.callback = None
+
+        await self.client.send(orjson.dumps(payload).decode())
+
+    def set_callback(self, callback: str) -> None:
+        self.callback = callback
 
     # Handle user data (ie. name and color)
     def set_user_data(self, data: dict[str, Any]) -> None:
