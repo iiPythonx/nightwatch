@@ -35,12 +35,26 @@ class AuthenticationServer(FastAPI):
 app: AuthenticationServer = AuthenticationServer()
 
 # Routing
-@app.post(path = "/api/authorize")
-async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
-    response: dict | None = app.db.users.find_one(filter = {"token": payload.token.get_secret_value()})
+@app.post(path = "/api/profile")
+async def route_api_profile(payload: models.BaseTokenModel) -> JSONResponse:
+    """Fetches a users profile. This method is POST to prevent query strings with account tokens
+    from being logged via uvicorn or whatever HTTP server is running at the moment."""
+    response: dict | None = app.db.tokens.find_one(filter = {"token": payload.token.get_secret_value()})
     if response is None:
         return JSONResponse(
             content = {"code": 403, "data": "Invalid account token."},
+            status_code = 403
+        )
+
+    return JSONResponse(content = {"code": 200, "data": {"username": response["username"]}})
+
+@app.post(path = "/api/authorize")
+async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
+    """Authorizes a new external Nightwatch server with a burner account token."""
+    response: dict | None = app.db.users.find_one(filter = {"token": payload.token.get_secret_value()})
+    if response is None:
+        return JSONResponse(
+            content = {"comde": 403, "data": "Invalid account token."},
             status_code = 403
         )
 
@@ -57,6 +71,7 @@ async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
 
 @app.post(path = "/api/signup")
 async def route_api_signup(payload: models.BaseAuthenticationModel) -> JSONResponse:
+    """Creates a new account and returns its token given a basic username and password."""
     response: dict | None = app.db.users.find_one(filter = {"username": payload.username})
     if response is not None:
         return JSONResponse(
@@ -75,6 +90,7 @@ async def route_api_signup(payload: models.BaseAuthenticationModel) -> JSONRespo
 
 @app.post(path = "/api/login")
 async def route_api_login(payload: models.BaseAuthenticationModel) -> JSONResponse:
+    """Logs in and returns the master token for a given account."""
     response: dict | None = app.db.users.find_one(filter = {"username": payload.username})
     if response is None:
         return JSONResponse(
@@ -82,7 +98,6 @@ async def route_api_login(payload: models.BaseAuthenticationModel) -> JSONRespon
             status_code = 404
         )
 
-    # Check password
     try:
         app.hasher.verify(hash = response["password"], password = payload.password.get_secret_value())
         if app.hasher.check_needs_rehash(hash = response["password"]):
