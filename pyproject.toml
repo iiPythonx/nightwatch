@@ -27,20 +27,19 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 dependencies = [
-    "websockets",
+    "urwid",
     "orjson",
-    "urwid",  # NEEDED: urwid@git+https://github.com/iiPythonx/urwid
-    "nanoid"
+    "nanoid",
+    "websockets"
 ]
 
 [project.optional-dependencies]
-dev = [
-    "hatch",
-    "build"
-]
 serve = [
-    "ujson",
-    "socketify"
+    "fastapi",
+    "pymongo",
+    "argon2-cffi",
+    "redis[hiredis]",
+    "uvicorn[standard]"
 ]
 
 [project.urls]
