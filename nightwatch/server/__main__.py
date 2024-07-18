@@ -90,7 +90,7 @@ app.ws(
     }
 )
 app.listen(
-    8080,
+    8000,
     lambda config: print(f"✨ Nightwatch | v{__version__}\nListening on port http://localhost:{config.port} now\n")
 )
 app.run()

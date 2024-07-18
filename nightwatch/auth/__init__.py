@@ -1,6 +1,8 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
+import secrets
+
 from fastapi import FastAPI
 
 import argon2
@@ -27,22 +29,73 @@ class AuthenticationServer(FastAPI):
         )
         mongo.admin.command("ping")
 
-        # Connect to Nightwatch / Authentication to avoid pollution
-        self.db = mongo.nightwatch.auth
+        # Connect to database
+        self.db = mongo.nightwatch_auth
 
 app: AuthenticationServer = AuthenticationServer()
 
 # Routing
-@app.post(path = "/api/login")
-async def route_api_login(payload: models.LoginModel) -> JSONResponse:
-    response: dict | None = app.db.find_one(filter = {"username": payload.username})
+@app.post(path = "/api/authorize")
+async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
+    response: dict | None = app.db.users.find_one(filter = {"token": payload.token.get_secret_value()})
     if response is None:
         return JSONResponse(
-            content = {"code": 400, "data": "No account with that username exists."},
+            content = {"code": 403, "data": "Invalid account token."},
+            status_code = 403
+        )
+
+    token_filter: dict = {"username": response["username"], "server": payload.server.host}
+
+    # Check for existing token
+    existing_token: dict | None = app.db.tokens.find_one(filter = token_filter)
+    if existing_token is not None:
+        return JSONResponse(content = {"code": 200, "data": existing_token["token"]})
+
+    new_token: str = secrets.token_hex(nbytes = 32)
+    app.db.tokens.insert_one(document = token_filter | {"token": new_token})
+    return JSONResponse(content = {"code": 200, "data": new_token})
+
+@app.post(path = "/api/signup")
+async def route_api_signup(payload: models.BaseAuthenticationModel) -> JSONResponse:
+    response: dict | None = app.db.users.find_one(filter = {"username": payload.username})
+    if response is not None:
+        return JSONResponse(
+            content = {"code": 400, "data": "An account with that username already exists."},
             status_code = 400
         )
 
-    # Check password
-    
+    # Create account
+    token: str = secrets.token_hex(nbytes = 32)
+    app.db.users.insert_one(document = {
+        "username": payload.username,
+        "password": app.hasher.hash(password = payload.password.get_secret_value()),
+        "token": token
+    })
+    return JSONResponse(content = {"code": 200, "data": token})
 
-    return JSONResponse(content = {"code": 200, "data": "Logging in isn't a thing yet bud."})
+@app.post(path = "/api/login")
+async def route_api_login(payload: models.BaseAuthenticationModel) -> JSONResponse:
+    response: dict | None = app.db.users.find_one(filter = {"username": payload.username})
+    if response is None:
+        return JSONResponse(
+            content = {"code": 404, "data": "No account with that username exists."},
+            status_code = 404
+        )
+
+    # Check password
+    try:
+        app.hasher.verify(hash = response["password"], password = payload.password.get_secret_value())
+        if app.hasher.check_needs_rehash(hash = response["password"]):
+            app.db.users.update_one(
+                filter = {"username": payload.username},
+                update = {"password": app.hasher.hash(password = payload.password.get_secret_value())}
+            )
+
+        return JSONResponse(content = {"code": 200, "data": response["token"]})
+
+    except argon2.exceptions.VerificationError:
+        log.warn("auth", f"Failed authentication attempt for user '{payload.username}'.")
+        return JSONResponse(
+            content = {"code": 403, "data": "Invalid password."},
+            status_code = 403
+        )
