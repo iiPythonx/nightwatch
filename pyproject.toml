@@ -37,6 +37,7 @@ dependencies = [
 serve = [
     "fastapi",
     "pymongo",
+    "starlette",
     "argon2-cffi",
     "redis[hiredis]",
     "uvicorn[standard]"

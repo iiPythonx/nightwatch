@@ -46,7 +46,10 @@ async def route_api_profile(payload: models.BaseTokenModel) -> JSONResponse:
             status_code = 403
         )
 
-    return JSONResponse(content = {"code": 200, "data": {"username": response["username"]}})
+    return JSONResponse(content = {"code": 200, "data": {
+        "domain": config["server.domain"],
+        "username": response["username"]
+    }})
 
 @app.post(path = "/api/authorize")
 async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
