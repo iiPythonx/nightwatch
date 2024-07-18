@@ -13,23 +13,22 @@ from nightwatch.logging import log
 # Handle state
 class NightwatchStateManager():
     def __init__(self) -> None:
-        self.clients = set()
+        self.clients = {}
         self.message_buffer = []
 
     def add_client(self, client: WebSocketCommonProtocol) -> None:
-        self.clients.add(client)
+        self.clients[client] = None
 
     def remove_client(self, client: WebSocketCommonProtocol) -> None:
-        self.clients.remove(client)
+        if client in self.clients:
+            del self.clients[client]
 
 state = NightwatchStateManager()
 
 # Socket entrypoint
 async def connection(websocket: WebSocketCommonProtocol) -> None:
     try:
-        state.add_client(websocket)
-
-        client = NightwatchClient(websocket)
+        client = NightwatchClient(state, websocket)
         async for message in websocket:
             message = orjson.loads(message)
             if message.get("type") not in registry.commands:
