@@ -1,30 +1,33 @@
 // Copyright (c) 2024 iiPython
 
-// Modules
-const { Store } = window.__TAURI__.store;
-
 // Initialization
 const notifier = new AWN({});
 
 // Authentication
 class Nightwatch {
     constructor() {
-        this.store = new Store("nightwatch.dat");
         this.auth_server = "auth.iipython.dev";
     }
 
     // Handle local authentication
     async authenticate() {
-        this.token = await this.store.get("token");
+        this.token = localStorage.getItem("token");
         if (!this.token) return;
 
         // Fetch user data
-        this.user = (await this.request("profile", { token: this.token })).data;
-        this.user.id = `${this.user.username}:${this.user.domain}`;
+        try {
+            const response = await this.request("profile", { token: this.token })
+            if (response.code === 200)  {
+                this.user = response.data;
+                this.user.id = `${this.user.username}:${this.user.domain}`;
+                return;
+            }
+            this._error = { type: "login", message: response.data };
+        } catch (error) { this._error = { type: "network", message: error.toString() }; }
     }
     async set_token(token) {
         this.token = token;
-        await this.store.set("token", token);
+        localStorage.setItem("token", token);
     }
 
     // Handle authentication
@@ -51,9 +54,3 @@ class Nightwatch {
 }
 
 const nightwatch = new Nightwatch();
-
-// Handle initial frame loading
-(async () => {
-    await nightwatch.authenticate();
-    load_frame(nightwatch.token ? "welcome" : "auth/login");
-})();

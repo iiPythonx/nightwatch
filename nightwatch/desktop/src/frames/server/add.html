@@ -1,0 +1,37 @@
+<form style = "width: 380px; background-color: var(--sd-black-d5);" class = "p-3 rounded">
+    <div class = "mb-4">
+        <label for = "addressInput" class = "form-label"><b>Address</b></label>
+        <div class = "input-group mb-3">
+            <span class = "input-group-text">wss://</span>
+            <input type = "text" class = "form-control" id = "addressInput">
+        </div>
+    </div>
+    <div class = "d-flex justify-content-end gap-2">
+        <button class = "btn btn-secondary" onclick = "close_modal();">Back</button>
+        <button class = "btn btn-primary" type = "submit">Add Server +</button>
+    </div>
+</form>
+<script>
+    (() => {
+        const button = document.querySelector("button[type = 'submit']");
+        const addressInput = document.getElementById("addressInput");
+        document.querySelector("form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            button.innerHTML = `<div class = "spinner-border spinner-border-sm" role = "status"></div> Adding`;
+
+            // Check server address first
+            let address = addressInput.value;
+            if (address.includes("://")) return notifier.alert("URL should not have a protocol.");
+
+            const url = new URL(`wss://${address}`);
+            if (url.search || url.hash) return notifier.alert("URL should not contain a query string or hash.");
+
+            address = address.replace(/^\/+|\/+$/g, "");
+            if (!address.endsWith("/gateway")) address += "/gateway";
+
+            // Attempt to add server
+            const result = await nightwatch.add_server(address);
+            console.log(result);
+        });
+    })();
+</script>

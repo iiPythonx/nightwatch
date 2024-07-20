@@ -1,0 +1,20 @@
+<div>
+    <h5>Third-party Server Notice</h5>
+    <hr>
+    <p>
+        Please note that Nightwatch servers are ran by the community and could contain files such as malware, <br>
+        ip loggers, and other malicious software. You should never join a Nightwatch server that you don't trust. <br> <br>
+        By continuing, you acknowledge that the Nightwatch developers are not responsible for the content <br>
+        hosted on these servers.
+    </p>
+    <div class = "d-flex justify-content-end gap-2">
+        <button class = "btn btn-secondary" onclick = "close_modal();">Back</button>
+        <button class = "btn btn-danger" id = "continue">Continue</button>
+    </div>
+</div>
+<script>
+    document.getElementById("continue").addEventListener("click", () => {
+        localStorage.setItem("acknowledged", "1");
+        load_frame_as_modal("server/add");
+    });
+</script>

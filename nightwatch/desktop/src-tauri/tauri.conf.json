@@ -9,7 +9,7 @@
         "withGlobalTauri": true,
         "windows": [
             {
-                "title": "nightwatch-desktop",
+                "title": "Nightwatch",
                 "width": 800,
                 "height": 600
             }

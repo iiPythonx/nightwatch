@@ -1,0 +1,17 @@
+<div id = "failure"></div>
+<script>
+    (() => {
+        document.getElementById("failure").innerHTML = `
+            <h5>Network Failure</h5>
+            <hr>
+            <p>
+                Nightwatch was unable to connect to ${nightwatch.auth_server} to authenticate you. <br>
+                Check the console (<code>Ctrl+Shift+I</code>) to find out why.
+            </p>
+            <div class = "d-flex justify-content-end gap-2">
+                <button class = "btn btn-secondary" onclick = "load_frame_as_modal('settings');">Settings</button>
+                <button class = "btn btn-danger" onclick = "main_login();">Retry</button>
+            </div>
+        `;
+    })();
+</script>

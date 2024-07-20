@@ -1,12 +1,15 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
+from http import HTTPStatus
+
 import orjson
 from pydantic import ValidationError
-from websockets import WebSocketCommonProtocol
+from websockets import WebSocketCommonProtocol, Headers
 from websockets.exceptions import ConnectionClosedError
 
 from .utils.commands import registry
+from .utils.constant import Constant
 from .utils.websocket import NightwatchClient
 
 from nightwatch.logging import log
@@ -24,6 +27,17 @@ class NightwatchStateManager():
             del self.clients[client]
 
 state = NightwatchStateManager()
+
+# Handle API
+async def process_api(path: str, request_headers: Headers) -> tuple[HTTPStatus, list, bytes]:
+    if path == "/info":
+        return HTTPStatus.OK, [], orjson.dumps({
+            "name": Constant.SERVER_NAME,
+            "version": Constant.SERVER_VERSION,
+            "icon": Constant.SERVER_ICON
+        })
+
+    return HTTPStatus.NOT_FOUND, [], b"Not Found\n"
 
 # Socket entrypoint
 async def connection(websocket: WebSocketCommonProtocol) -> None:
