@@ -28,7 +28,7 @@ def connect_loop(host: str, port: int, username: str) -> None:
             ws = ORJSONWebSocket(ws)
 
             # Handle identification payload
-            ws.send({"type": "identify", "data": {"name": username, "color": config["user.color"]}})
+            ws.send({"type": "identify", "data": {"name": username, "color": config["client.user_color"]}})
             response = ws.recv()
             if response["type"] == "error":
                 exit(f"\nCould not connect to {destination}. Additional details:\n{response['data']['text']}")

@@ -35,9 +35,12 @@ dependencies = [
 
 [project.optional-dependencies]
 serve = [
+    "anyio",
+    "uvloop",
     "fastapi",
     "pymongo",
     "pydantic",
+    "broadcaster",
     "pydantic-extra-types",
     "starlette",
     "argon2-cffi",

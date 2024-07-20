@@ -46,10 +46,26 @@ app: AuthenticationServer = AuthenticationServer()
 # Handle errors
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
-    error = exc.errors()[0]  # Just focus on one
+    error, message = exc.errors()[0], str(exc)  # Just focus on one
+    match error["type"]:
+        case "too_short" | "string_too_short":
+            message = f"{error['loc'][1].capitalize()} should be at least {error['ctx']['min_length']} characters."
+
+        case "too_long" | "string_too_long":
+            message = f"{error['loc'][1].capitalize()} should be {error['ctx']['max_length']} characters at most."
+
+        case "missing":
+            message = f"{error['loc'][1].capitalize()} needs to be specified."
+
+        case "string_type":
+            message = f"{error['loc'][1].capitalize()} must be a valid string."
+
+        case "url_type" | "url_scheme" | "url_parsing":
+            message = f"{error['loc'][1].capitalize()} must be a valid URL."
+
     return JSONResponse(
         status_code = 422,
-        content = {"code": 422, "data": error["msg"].lower().replace("value", error["loc"][1])}
+        content = {"code": 422, "data": message}
     )
 
 # Routing

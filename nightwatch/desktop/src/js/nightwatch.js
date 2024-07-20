@@ -9,9 +9,20 @@ class Nightwatch {
         this.auth_server = "auth.iipython.dev";
     }
 
+    // Handle servers
+    async add_server(server) {
+        try {
+            const info = await (await fetch(`https://${server.replace("/gateway", "/info")}`)).json();
+            return {
+                type: "success",
+                data: info
+            }
+        } catch (error) { return { type: "fail" }; }
+    }
+
     // Handle local authentication
     async authenticate() {
-        this.token = localStorage.getItem("token");
+        this.token = this.token || localStorage.getItem("token");
         if (!this.token) return;
 
         // Fetch user data

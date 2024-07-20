@@ -4,12 +4,12 @@
 from typing import Any
 
 import orjson
-from websockets import WebSocketCommonProtocol
+from starlette.websockets import WebSocket
 
 class NightwatchClient():
-    """This class acts as a wrapper on top of WebSocketCommonProtocol that implements
+    """This class acts as a wrapper on top of WebSocket that implements
     data serialization through orjson."""
-    def __init__(self, state, client: WebSocketCommonProtocol) -> None:
+    def __init__(self, state, client: WebSocket) -> None:
         self.client = client
         self.identified, self.callback = False, None
 
@@ -22,7 +22,7 @@ class NightwatchClient():
             payload["callback"] = self.callback
             self.callback = None
 
-        await self.client.send(orjson.dumps(payload).decode())
+        await self.client.send_text(orjson.dumps(payload).decode())
 
     def set_callback(self, callback: str) -> None:
         self.callback = callback

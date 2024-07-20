@@ -4,9 +4,8 @@
 from typing import Callable
 
 import orjson
-import websockets
 
-from . import models
+from . import models, broadcast
 from .constant import Constant
 from .websocket import NightwatchClient
 
@@ -42,7 +41,7 @@ async def command_identify(state, client: NightwatchClient, data: models.Identif
     client.identified = True
 
     await client.send("server", name = Constant.SERVER_NAME, online = len(state.clients))
-    websockets.broadcast(state.clients, orjson.dumps({
+    await broadcast.publish("general", orjson.dumps({
         "type": "message",
         "data": {"text": f"{data.name} joined the chatroom.", "user": Constant.SERVER_USER}
     }).decode())
@@ -52,7 +51,7 @@ async def command_message(state, client: NightwatchClient, data: models.MessageM
     if not client.identified:
         return await client.send("error", text = "You must identify before sending a message.")
 
-    websockets.broadcast(state.clients, orjson.dumps({
+    await broadcast.publish("general", orjson.dumps({
         "type": "message",
         "data": {"text": data.text, "user": client.user_data}
     }).decode())

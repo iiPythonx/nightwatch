@@ -58,6 +58,11 @@ ul.nav {
 }
 
 /* Custom element colors based on Soda */
+#authServer {
+    cursor: pointer;
+    color: var(--sd-cherry-blossom-d25);
+}
+
 a.text-primary-emphasis {
     color: var(--sd-sky-d20) !important;
 }

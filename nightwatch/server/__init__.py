@@ -1,13 +1,17 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
-from http import HTTPStatus
-
+import anyio
 import orjson
 from pydantic import ValidationError
-from websockets import WebSocketCommonProtocol, Headers
-from websockets.exceptions import ConnectionClosedError
 
+from starlette.requests import Request
+from starlette.routing import Route, WebSocketRoute
+from starlette.responses import JSONResponse, PlainTextResponse
+from starlette.websockets import WebSocket
+from starlette.applications import Starlette
+
+from .utils import broadcast
 from .utils.commands import registry
 from .utils.constant import Constant
 from .utils.websocket import NightwatchClient
@@ -19,31 +23,42 @@ class NightwatchStateManager():
     def __init__(self) -> None:
         self.clients = {}
 
-    def add_client(self, client: WebSocketCommonProtocol) -> None:
+    def add_client(self, client: WebSocket) -> None:
         self.clients[client] = None
 
-    def remove_client(self, client: WebSocketCommonProtocol) -> None:
+    def remove_client(self, client: WebSocket) -> None:
         if client in self.clients:
             del self.clients[client]
 
 state = NightwatchStateManager()
 
 # Handle API
-async def process_api(path: str, request_headers: Headers) -> tuple[HTTPStatus, list, bytes]:
-    if path == "/info":
-        return HTTPStatus.OK, [], orjson.dumps({
-            "name": Constant.SERVER_NAME,
-            "version": Constant.SERVER_VERSION,
-            "icon": Constant.SERVER_ICON
-        })
+async def route_home(request: Request) -> PlainTextResponse:
+    return PlainTextResponse("Nightwatch is running.")
 
-    return HTTPStatus.NOT_FOUND, [], b"Not Found\n"
+async def route_info(request: Request) -> JSONResponse:
+    return JSONResponse({
+        "name": Constant.SERVER_NAME,
+        "version": Constant.SERVER_VERSION,
+        "icon": Constant.SERVER_ICON
+    })
 
 # Socket entrypoint
-async def connection(websocket: WebSocketCommonProtocol) -> None:
+async def route_gateway(websocket: WebSocket) -> None:
+    await websocket.accept()
+
+    client = NightwatchClient(state, websocket)
+    async with anyio.create_task_group() as task_group:
+        async def run_chatroom_ws_receiver() -> None:
+            await chatroom_ws_receiver(websocket, client)
+            task_group.cancel_scope.cancel()
+
+        task_group.start_soon(run_chatroom_ws_receiver)
+        await chatroom_ws_sender(websocket)
+
+async def chatroom_ws_receiver(websocket: WebSocket, client: NightwatchClient) -> None:
     try:
-        client = NightwatchClient(state, websocket)
-        async for message in websocket:
+        async for message in websocket.iter_text():
             message = orjson.loads(message)
             if message.get("type") not in registry.commands:
                 await client.send("error", text = "Specified command type does not exist or is missing.")
@@ -67,7 +82,20 @@ async def connection(websocket: WebSocketCommonProtocol) -> None:
     except orjson.JSONDecodeError:
         log.warn("ws", "Failed to decode JSON from client.")
 
-    except ConnectionClosedError:
-        log.info("ws", "Client disconnected.")
-    
     state.remove_client(websocket)
+    log.info("ws", "Client disconnected.")
+
+async def chatroom_ws_sender(websocket: WebSocket) -> None:
+    async with broadcast.subscribe("general") as sub:
+        async for event in sub:  # type: ignore
+            await websocket.send_text(event.message)
+
+app = Starlette(
+    routes = [
+        Route("/", route_home),
+        Route("/info", route_info),
+        WebSocketRoute("/gateway", route_gateway)
+    ],
+    on_startup = [broadcast.connect],
+    on_shutdown = [broadcast.disconnect]
+)

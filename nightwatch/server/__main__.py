@@ -2,21 +2,19 @@
 
 # Modules
 import os
-import asyncio
 
-from websockets.server import serve
+import uvicorn
 
-from . import connection, process_api
+from . import app
 
 from nightwatch import __version__
 from nightwatch.logging import log
 
 # Entrypoint
-async def main() -> None:
+def main() -> None:
     host, port = os.getenv("HOST", "localhost"), int(os.getenv("PORT", 8000))
     log.info("ws", f"Nightwatch v{__version__} running on ws://{host}:{port}/")
-    async with serve(connection, host, port, process_request = process_api):
-        await asyncio.Future()
+    uvicorn.run(app, host = host, port = port, log_level = "info")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

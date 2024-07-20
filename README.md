@@ -1,7 +1,7 @@
 <h1 align = "center">Nightwatch</h1>
 <div align = "center">
 
-![Python](https://img.shields.io/badge/Python-%3E=%203.10-4b8bbe?style=for-the-badge&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-%3E=%203.11-4b8bbe?style=for-the-badge&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-%3E=%201.60-221f1e?style=for-the-badge&logo=rust&logoColor=white)
 
 The chatting application to end all chatting applications. 
@@ -19,7 +19,7 @@ Here are two of the standard clients for you to choose from:
 - Full Desktop App ([based on tauri](https://tauri.app/))
     - Download the latest release for your system from [here](https://github.com/iiPythonx/nightwatch/releases/latest).
     - Alternatively, run it manually:
-        - Follow the instructions from [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) (including installing [Rust](https://rust-lang.org)).
+        - Follow the instructions from [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/).
         - Install the Tauri CLI with `cd nightwatch/desktop && bun i`.
         - Launch via `bun run tauri dev`.
 
