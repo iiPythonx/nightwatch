@@ -1,0 +1,26 @@
+<form style = "width: 380px; background-color: var(--sd-black-d5);" class = "p-3 rounded">
+    <h3>Account Creation</h3>
+    <hr>
+    <div class = "mb-3">
+        <label for = "usernameInput" class = "form-label">Username</label>
+        <input type = "text" class = "form-control" id = "usernameInput">
+    </div>
+    <div class = "mb-4">
+        <label for = "passwordInput" class = "form-label">Password</label>
+        <input type = "password" class = "form-control" id = "passwordInput" aria-describedby = "authServerNotice">
+        <div id = "authServerNotice" class = "form-text">Signing up on: <span style = "color: var(--sd-cherry-blossom-d25);">auth.iipython.dev</span>.</div>
+    </div>
+    <div class = "row align-items-center">
+        <div class = "col">
+            <a role = "button" class = "text-primary-emphasis" onclick = "load_frame('auth/login');">Login instead</a>
+        </div>
+        <div class = "col">
+            <div class = "d-flex justify-content-end gap-2">
+                <button class = "btn btn-secondary">Settings</button>
+                <button class = "btn btn-primary" type = "submit">Continue</button>
+            </div>
+        </div>
+    </div>
+</form>
+<script>window.__NWAUTHMETHOD__ = nightwatch.signup;</script>
+<script src = "/js/frames/auth.js"></script>

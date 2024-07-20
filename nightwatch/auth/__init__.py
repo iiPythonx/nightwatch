@@ -4,6 +4,7 @@
 import secrets
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 import argon2
 from fastapi.responses import JSONResponse
@@ -18,6 +19,13 @@ from . import models
 class AuthenticationServer(FastAPI):
     def __init__(self) -> None:
         super().__init__()
+        self.add_middleware(
+            CORSMiddleware,
+            allow_origins = "*",
+            allow_credentials = True,
+            allow_methods = ["POST"],
+            allow_headers = ["*"]
+        )
 
         # Initialize Argon2
         self.hasher = argon2.PasswordHasher()
@@ -39,7 +47,9 @@ app: AuthenticationServer = AuthenticationServer()
 async def route_api_profile(payload: models.BaseTokenModel) -> JSONResponse:
     """Fetches a users profile. This method is POST to prevent query strings with account tokens
     from being logged via uvicorn or whatever HTTP server is running at the moment."""
-    response: dict | None = app.db.tokens.find_one(filter = {"token": payload.token.get_secret_value()})
+    response: dict | None = app.db.tokens.find_one(filter = {"token": payload.token.get_secret_value()}) or \
+        app.db.users.find_one(filter = {"token": payload.token.get_secret_value()})
+
     if response is None:
         return JSONResponse(
             content = {"code": 403, "data": "Invalid account token."},
@@ -57,7 +67,7 @@ async def route_api_authorize(payload: models.AuthorizeModel) -> JSONResponse:
     response: dict | None = app.db.users.find_one(filter = {"token": payload.token.get_secret_value()})
     if response is None:
         return JSONResponse(
-            content = {"comde": 403, "data": "Invalid account token."},
+            content = {"code": 403, "data": "Invalid account token."},
             status_code = 403
         )
 

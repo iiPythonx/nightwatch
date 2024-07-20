@@ -1,57 +1,59 @@
 // Copyright (c) 2024 iiPython
 
-// Main server class
-class NightwatchServer {
-    constructor(address) {
-        address = address.split(":");
+// Modules
+const { Store } = window.__TAURI__.store;
 
-        this.host = address[0];
-        this.port = address[1] ? Number(address[1]) : 443;
+// Initialization
+const notifier = new AWN({});
 
-        // Connect socket
-        this._callbacks = {};
-        this.connect();
+// Authentication
+class Nightwatch {
+    constructor() {
+        this.store = new Store("nightwatch.dat");
+        this.auth_server = "auth.iipython.dev";
     }
 
-    connect() {
-        if (this._interval) clearInterval(this._interval);
-        this.socket = new WebSocket(`${this.port == 443 ? 'wss' : 'ws'}://${this.host}:${this.port}/gateway`);
-        this.socket.addEventListener("message", (d) => {
-            const data = JSON.parse(d.data);
-            const callback = this._callbacks[data.callback];
-            if (callback) {
-                delete this._callbacks[data.callback];
-                return callback(data);
-            }
-            if (data.type == "message" && this.on_message) this.on_message(data);
-        });
-        this.socket.addEventListener("error", () => { if (this.on_error) this.on_error(); });
-        this.socket.addEventListener("open", () => { if (this.connected) this.connected(); });
-        this._interval = setInterval(() => { this.send_payload("ping"); }, 10000);
+    // Handle local authentication
+    async authenticate() {
+        this.token = await this.store.get("token");
+        if (!this.token) return;
+
+        // Fetch user data
+        this.user = (await this.request("profile", { token: this.token })).data;
+        this.user.id = `${this.user.username}:${this.user.domain}`;
+    }
+    async set_token(token) {
+        this.token = token;
+        await this.store.set("token", token);
     }
 
-    send_payload(type, data, callback) {
-        if (!this.socket) throw new Error("Current Nightwatch websocket is not connected!");
-        let payload = { data: data };
-        if (callback) {
-            let callback_id = nanoid();
-            payload.callback = callback_id;
-            this._callbacks[callback_id] = callback;
-        }
-        this.socket.send(JSON.stringify({ type: type, ...payload }));
+    // Handle authentication
+    async request(endpoint, payload) {
+        return await (await fetch(`https://${this.auth_server}/api/${endpoint}`, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" }
+        })).json();
     }
-
-    close() {
-        this.socket.close();
+    async login(username, password) {
+        const response = await this.request("login", { username, password })
+        if (response.code === 200) this.set_token(response.data);
+        return response;
     }
-
-    // Main events
-    identify(username, color, callback) {
-        this.user = { name: username, color: color };
-        this.send_payload("identify", this.user, callback);
+    async signup(username, password) {
+        const response = await this.request("signup", { username, password })
+        if (response.code === 200) this.set_token(response.data);
+        return response;
     }
-
-    message(content) {
-        this.send_payload("message", { text: content });
+    async authorize(server) {
+        return await this.request("authorize", { token: this.token, server })
     }
 }
+
+const nightwatch = new Nightwatch();
+
+// Handle initial frame loading
+(async () => {
+    await nightwatch.authenticate();
+    load_frame(nightwatch.token ? "welcome" : "auth/login");
+})();

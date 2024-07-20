@@ -7,14 +7,8 @@ import orjson
 import websockets
 
 from . import models
+from .constant import Constant
 from .websocket import NightwatchClient
-
-from nightwatch.config import config
-
-# Constants
-class Constant:
-    SERVER_USER: dict[str, str] = {"name": "Nightwatch", "color": "gray"}
-    SERVER_NAME: str = config["server.name"] or "Untitled Server"
 
 # Handle command registration
 class CommandRegistry():

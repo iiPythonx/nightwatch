@@ -1,0 +1,28 @@
+<div id = "welcome"></div>
+<script>
+    (() => {
+        document.getElementById("welcome").innerHTML = `
+            <h2>Hello, ${nightwatch.user.username}.</h2>
+            <hr>
+            <h5><b>First steps</b></h5>
+            <p>
+                To get started, you'll want to join a server by clicking the + icon in the server bar at the top of the screen. <br>
+                After that, you can tweak client settings in the top right hand corner.
+            </p>
+            <hr>
+            <h5><b>Service overview</b></h5>
+            <p>
+                Nightwatch is composed of a client (the desktop app you're using right now), a chat server, and an authentication server. <br>
+                To ensure users are unique, users will be assigned an ID ending with the auth server their data is stored on. For example, <br>
+                yours is <code>${nightwatch.user.id}</code>. This ID won't change unless you switch authentication servers (available in settings).
+            </p>
+            <hr>
+            <h5><b>Everything else</b></h5>
+            <p>
+                If you encounter any bugs, have any questions, or want to contribute to Nightwatch, please check out: <br>
+                <a href = "https://github.com/iiPythonx/nightwatch" target = "_blank">https://github.com/iiPythonx/nightwatch</a> <br> <br>
+                You can also contact me at <a href = "mailto:ben@iipython.dev" target = "_blank">ben@iipython.dev</a>.
+            </p>
+        `;
+    })();
+</script>

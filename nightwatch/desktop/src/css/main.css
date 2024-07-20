@@ -1,0 +1,63 @@
+main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+html, body, main {
+    height: 100%;
+}
+body {
+    margin: 0px;
+    color: var(--sd-white);
+    background-color: var(--sd-black-d10);
+}
+.server-btn * {
+    object-fit: cover;
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all ease .2s;
+
+    /* For SVGs */
+    fill: var(--sd-white);
+    background-color: transparent;
+}
+.server-btn *:hover {
+    border-radius: 15px;
+    background-color: var(--sd-black-d10);
+}
+ul.nav {
+    gap: 10px;
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-right: 10px;
+    width: calc(100vw - 20px);
+    padding: 5px;
+    border-radius: 15px;
+    background-color: var(--sd-black-d5);
+}
+
+/* Custom element colors based on Soda */
+a.text-primary-emphasis {
+    color: var(--sd-sky-d20) !important;
+}
+a.text-primary-emphasis:hover {
+    color: var(--sd-sky-d30) !important;
+}
+
+button {
+    border: none !important;
+}
+button.btn-primary {
+    background-color: var(--sd-sky-d20);
+}
+button.btn-primary:hover {
+    background-color: var(--sd-sky-d30);
+}
+button.btn-secondary {
+    background-color: var(--sd-gray-d15);
+}
+button.btn-secondary:hover {
+    background-color: var(--sd-black-l10);
+}
