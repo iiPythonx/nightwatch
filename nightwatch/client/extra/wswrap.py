@@ -1,14 +1,15 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
+from types import FunctionType
+
 import orjson
 from nanoid import generate
-from types import FunctionType
-from websockets import WebSocketCommonProtocol
+from websockets.sync.connection import Connection
 
 # Main class
 class ORJSONWebSocket():
-    def __init__(self, ws: WebSocketCommonProtocol) -> None:
+    def __init__(self, ws: Connection) -> None:
         self.ws = ws
         self.callbacks = {}
 

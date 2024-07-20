@@ -43,8 +43,8 @@ def connect_loop(host: str, port: int, username: str) -> None:
             loop.screen.set_terminal_properties(2 ** 24)  # Activate 24-bit color mode
 
             # Individual components
-            loop.screen.register_palette_entry("time", "dark green", "", foreground_high = config["colors.time"] or "#00FF00")
-            loop.screen.register_palette_entry("sep", "dark gray", "", foreground_high = config["colors.sep"] or "#555753")
+            loop.screen.register_palette_entry("time", "dark green", "", foreground_high = config["client.colors.time"] or "#00FF00")
+            loop.screen.register_palette_entry("sep", "dark gray", "", foreground_high = config["client.colors.sep"] or "#555753")
 
             # Handle messages
             def message_loop(ws: ORJSONWebSocket, ui: NightwatchUI) -> None:
@@ -79,25 +79,26 @@ def connect_loop(host: str, port: int, username: str) -> None:
 
 # Entrypoint
 def start_client(
-    address: str = None,
-    username: str = None
+    address: str | None = None,
+    username: str | None = None
 ):
-    username = username or config["user.name"]
+    username = username or config["client.username"]
 
     # Start main UI
     print(f"\033[H\033[2J✨ Nightwatch | v{__version__}\n")
     if username is None:
         print("Hello! It seems that this is your first time using Nightwatch.")
         print("Before you can connect to a server, please set your desired username.\n")
-        config.set("user.name", input("Username: "))
+        username = input("Username: ")
+        config.set("client.username", username)
         print("\033[4A\033[0J", end = "")  # Reset back up to the Nightwatch label
 
     # Handle server address
     if address is None:
-        servers = config["servers"]
+        servers = config["client.servers"]
         if servers is None:
             servers = ["nightwatch.iipython.dev"]
-            config.set("servers", servers)
+            config.set("client.servers", servers)
 
         print(f"Hello, {username}. Please select a Nightwatch server to connect to:")
         address = menu.show(servers)
@@ -114,7 +115,7 @@ def start_client(
 
     # Connect to server
     try:
-        connect_loop(host, port, username)
+        connect_loop(host, int(port), username)
 
     except KeyboardInterrupt:
         print("\033[5A\033[0J", end = "")  # Reset back up to the Nightwatch label

@@ -22,7 +22,7 @@ class ShrugCommand(BaseCommand):
         super().__init__("shrug", *args)
 
     def on_execute(self, args: List[str]) -> str:
-        return "¯\_(ツ)_/¯"
+        return "¯\\_(ツ)_/¯"
 
 class ConfigCommand(BaseCommand):
     def __init__(self, *args) -> None:
@@ -47,7 +47,7 @@ class ConfigCommand(BaseCommand):
         elif len(args) < 2:
             return self.print(f"Missing the value to assign to '{args[0]}'.")
 
-        config.set(args[0], args[1])
+        config.set(f"client.{args[0]}", args[1])
         self.print(f"{args[0]} has been set to \"{args[1]}\".")
 
 class HelpCommand(BaseCommand):

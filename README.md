@@ -20,18 +20,27 @@ Here are two of the standard clients for you to choose from:
     - Download the latest release for your system from [here](https://github.com/iiPythonx/nightwatch/releases/latest).
     - Alternatively, run it manually:
         - Follow the instructions from [Tauri prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites) (including installing [Rust](https://rust-lang.org)).
-        - Install the Tauri CLI: `cargo install tauri-cli`.
-        - Launch via `cargo tauri dev` inside the `nightwatch/desktop/` folder.
+        - Install the Tauri CLI with `cd nightwatch/desktop && bun i`.
+        - Launch via `bun run tauri dev`.
 
 # Server Installation
 
-Running a Nightwatch server can be a bit trickier then running the client, but follow along:
+Running a Nightwatch server is a piece of cake:
+```sh
+# Make a virtual environment for Nightwatch
+uv venv
+source .venv/bin/activate
 
-- You'll need either [CPython 3.10 or above](https://python.org/downloads), or **preferably**, [PyPy 3.10](https://www.pypy.org/download.html). 
-- Install the following dependencies: `pypy3 -m pip install ujson socketify`.
-- Launch the server via `pypy3 -m nightwatch.server`.
+# Install the server and its dependencies
+uv pip install nightwatch-chat[serve]
 
-For more possible ways to run the server, please refer to the [socketify.py documentation](https://docs.socketify.dev/cli.html).
+# Edit the configuration
+mkdir -p ~/.config/nightwatch
+nano ~/.config/nightwatch/config.json
+
+# Launch the server
+python3 -m nightwatch.server
+```
 
 # Configuration
 
@@ -39,5 +48,37 @@ Configuration is available at:
 - ***nix systems**: ~/.config/nightwatch/config.json
 - **Windows**: %AppData%\Local\Nightwatch\config.json
 
-The Nightwatch client currently allows you to store custom colors and username data there.  
-The server currently only uses it for `server.name`. Although that is prone to change.
+An example config with all available options is as follows:
+```jsonc
+{
+    "server": {
+        "connections": {
+            "redis": {
+                "address": "redis.example.com",
+
+                // Password is optional
+                "password": "somerandompassword"
+            },
+            "mongodb": "mongodb://user:pass@mongodb.example.com"
+        },
+
+        // Icon URL for your server
+        // To be replaced by a self hosted icon in the future
+        "icon_url": "https://example.com/images/icon.png",
+
+        // If your auth server is auth.example.com and you want
+        // IDs to use example.com instead, specify that here.
+        // example.com/.well-known/nightwatch will need to return
+        // auth.example.com for this to be accepted by servers.
+        "domain": "example.com"
+    },
+    "client": {
+        "username": "iiPythonx",
+        "user_color": "#126bf1",
+        "servers": [
+            "localhost:8000",
+            "nightwatch.example.com"
+        ]
+    }
+}
+```
