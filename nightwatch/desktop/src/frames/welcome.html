@@ -24,5 +24,54 @@
                 You can also contact me at <a href = "mailto:ben@iipython.dev" target = "_blank">ben@iipython.dev</a>.
             </p>
         `;
+
+        // Load in servers
+        const server_list = document.getElementById("serverList");
+        server_list.innerHTML = `
+            <li class = "nav-item server-btn" id = "add-server">
+                <svg viewBox = "0 0 24 24"><path d = "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6z"></path></svg>
+            </li>
+        `;
+
+        function add_server(server) {
+
+            // Create main button
+            const server_button = document.createElement("li");
+            server_button.classList.add("nav-item", "server-btn");
+            server_button.setAttribute("data-nightwatch-server", server.url);
+
+            // Handle tooltip
+            server_button.addEventListener("mouseover", () => create_tooltip(server_button, server.name));
+            server_button.addEventListener("mouseleave", remove_tooltip);
+
+            // Handle accessing server
+            server_button.addEventListener("click", () => {
+                nightwatch.active_server = server.url;
+                load_frame("server/chat");
+            });
+
+            // Create image
+            const server_image = document.createElement("img");
+            server_image.src = server.icon;
+
+            // Setup in server list
+            server_button.appendChild(server_image);
+            server_list.prepend(server_button);
+        }
+
+        for (const server of nightwatch.servers) add_server(server);
+
+        // Handle loading after-the-fact
+        nightwatch.on_server_added = add_server;
+        nightwatch.on_server_removed = (server) => {
+            const element = document.querySelector(`li[data-nightwatch-server = "${server.url}"]`);
+            if (element) element.remove();
+        }
+
+        // Handle adding servers
+        document.getElementById("add-server").addEventListener("click", () => {
+            if (+localStorage.getItem("acknowledged")) return load_frame_as_modal("server/add");
+            load_frame_as_modal("server/notice");
+        });
     })();
 </script>

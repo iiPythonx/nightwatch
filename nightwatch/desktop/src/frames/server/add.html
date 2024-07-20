@@ -4,6 +4,7 @@
         <div class = "input-group mb-3">
             <span class = "input-group-text">wss://</span>
             <input type = "text" class = "form-control" id = "addressInput" autofocus>
+            <div class = "invalid-feedback"></div>
         </div>
     </div>
     <div class = "d-flex justify-content-end gap-2">
@@ -14,24 +15,32 @@
 <script>
     (() => {
         const button = document.querySelector("button[type = 'submit']");
-        const addressInput = document.getElementById("addressInput");
+        const address_input = document.getElementById("addressInput");
+        const set_error = (error) => {
+            address_input.classList.add("is-invalid");
+            button.innerHTML = `Add Server +`;
+            document.querySelector(".invalid-feedback").innerText = error;
+        }
         document.querySelector("form").addEventListener("submit", async (e) => {
             e.preventDefault();
             button.innerHTML = `<div class = "spinner-border spinner-border-sm" role = "status"></div> Adding`;
 
             // Check server address first
-            let address = addressInput.value;
-            if (address.includes("://")) return notifier.alert("URL should not have a protocol.");
+            let address = address_input.value;
+            if (address.includes("://")) return set_error("URL should not have a protocol.");
 
-            const url = new URL(`wss://${address}`);
-            if (url.search || url.hash) return notifier.alert("URL should not contain a query string or hash.");
+            try {
+                const url = new URL(`wss://${address}`);
+                if (url.search || url.hash) return set_error("URL should not contain a query string or hash.");
+            } catch (error) { return set_error(error.toString()); }
 
             address = address.replace(/^\/+|\/+$/g, "");
             if (!address.endsWith("/gateway")) address += "/gateway";
 
             // Attempt to add server
             const result = await nightwatch.add_server(address);
-            console.log(result);
+            if (result.type === "success") return close_modal();
+            set_error(result.message);
         });
     })();
 </script>

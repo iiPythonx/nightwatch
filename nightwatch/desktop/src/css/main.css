@@ -36,6 +36,7 @@ ul.nav {
     padding: 5px;
     border-radius: 15px;
     background-color: var(--sd-black-d5);
+    height: 55px;
 }
 
 /* Modals */
@@ -55,6 +56,21 @@ ul.nav {
 #nw-modal > div {
     z-index: 999;
     padding: 40px;  /* Mainly to add more click room */
+}
+
+/* Popper popups */
+div.nw-tooltip {
+    background: #222;
+    color: white;
+    font-weight: bold;
+    padding: 5px;
+    border-radius: 4px;
+    font-size: 90%;
+    z-index: 999;
+    position: fixed !important;
+}
+div.nw-tooltip p {
+    margin: 0px;
 }
 
 /* Custom element colors based on Soda */

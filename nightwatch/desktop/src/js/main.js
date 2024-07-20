@@ -14,9 +14,3 @@ async function main_login() {
     load_frame(nightwatch.token ? "welcome" : "auth/login");
 }
 main_login();
-
-// Handle adding servers
-document.getElementById("add-server").addEventListener("click", () => {
-    if (+localStorage.getItem("acknowledged")) return load_frame_as_modal("server/add");
-    load_frame_as_modal("server/notice");
-});

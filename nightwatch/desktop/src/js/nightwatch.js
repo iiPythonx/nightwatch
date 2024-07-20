@@ -6,18 +6,30 @@ const notifier = new AWN({});
 // Authentication
 class Nightwatch {
     constructor() {
+        this.servers = JSON.parse(localStorage.getItem("servers") || "[]");
         this.auth_server = "auth.iipython.dev";
     }
 
     // Handle servers
     async add_server(server) {
         try {
-            const info = await (await fetch(`https://${server.replace("/gateway", "/info")}`)).json();
-            return {
-                type: "success",
-                data: info
-            }
-        } catch (error) { return { type: "fail" }; }
+            const resp = await fetch(`https://${server.replace("/gateway", "/info")}`);
+            const info = { url: server, ...(await resp.json()) };
+            if (resp.status !== 200 || !info.version) return { type: "fail", message: "Nightwatch didn't respond." };
+            if (this.servers.map(x => x.url).includes(server)) return { type: "fail", message: "Server already added." };
+
+            // Add server to list
+            this.servers.push(info);
+            localStorage.setItem("servers", JSON.stringify(this.servers));
+
+            if (this.on_server_added) this.on_server_added(info);
+            return { type: "success", data: info }
+        } catch (error) { return { type: "fail", message: "Failed to connect to server." }; }
+    }
+    remove_server(server) {
+        this.servers = this.servers.filter(x => x.url !== server);
+        localStorage.setItem("servers", JSON.stringify(this.servers));
+        if (this.on_server_removed) this.on_server_removed({ url: server });
     }
 
     // Handle local authentication
