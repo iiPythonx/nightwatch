@@ -3,8 +3,11 @@ main {
     align-items: center;
     justify-content: center;
 }
-html, body, main {
-    height: 100%;
+html, body {
+    height: calc(100% - 10px);
+}
+main {
+    height: calc(100vh - 65px);
 }
 body {
     margin: 0px;

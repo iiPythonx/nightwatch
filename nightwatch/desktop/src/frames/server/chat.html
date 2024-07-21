@@ -1,4 +1,114 @@
-<script>
+<style>
+    .server-parent {
+        width: 100%;
+        height: calc(100% - 20px);
+        margin: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        grid-column-gap: 10px;
+        grid-row-gap: 10px;
+    }
+    .server-parent > div {
+        padding: 20px;
+        border-radius: 15px;
+        background-color: var(--sd-black-d5);;
+    }
+    #server-chat { grid-area: 1 / 1 / 6 / 4; }
+    #server-info {
+        position: relative;
+        grid-area: 1 / 4 / 3 / 5;
+    }
+    #server-members { grid-area: 3 / 4 / 6 / 5; }
+    img.banner {
+        top: 0px;
+        left: 0px;
+        position: absolute;
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 15px 15px 0px 0px;
+    }
+    div.content {
+        margin-top: 80px;
+    }
+    .icon {
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .icon.is {
+        width: 25px;
+        height: 25px;
+    }
+    .icon.im {
+        width: 35px;
+        height: 35px;
+    }
+    div.member {
+        gap: 12px;
+    }
+    div.member p {
+        font-size: 16px;
+    }
+    div.member span {
+        font-size: 12px;
+    }
+    h1, h2, h3, h4, h5, h6, p {
+        margin: 0px !important;
+    }
+</style>
+<div class = "server-parent">
+    <div id = "server-chat">
+        <h4>Chat</h4>
+    </div>
+    <div id = "server-info">
+        <img class = "banner" src = "https://media.discordapp.net/attachments/990375009916694548/1264376272465952871/image.png?ex=669da5aa&is=669c542a&hm=8581db9e94a248dfe7f76a614151b6904a115a5889ab32e53934a2cd867de05f&=&format=webp&quality=lossless">
+        <div class = "content d-flex flex-column gap-1">
+            <div class = "d-flex gap-2 align-items-center">
+                <img class = "icon is" src = "https://images.unsplash.com/photo-1721404832661-658016cde3d4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D">
+                <h4>Some Random Server</h4>
+            </div>
+            <p>27 members, 6 online</p>
+            <hr>
+            <code>Hi! Welcome to Some Random Server! https://somerandomserver.com</code>
+        </div>
+    </div>
+    <div id = "server-members">
+        <h4>Members</h4>
+        <hr>
+        <div class = "d-flex flex-column gap-2">
+            <div class = "d-flex member align-items-center">
+                <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                <div class = "d-flex flex-column">
+                    <p>iiPython</p>
+                    <span>Thinking about life™</span>
+                </div>
+            </div>
+            <div class = "d-flex member align-items-center">
+                <img class = "icon im" src = "https://cdn.discordapp.com/avatars/461629094661062656/9b2a0b7a6f93ef8f047cd23a310c96bf.webp?size=80">
+                <div class = "d-flex flex-column">
+                    <p>DmmD (the real one)</p>
+                    <span>🥞 パンケーキ™</span>
+                </div>
+            </div>
+            <div class = "d-flex member align-items-center">
+                <img class = "icon im" src = "https://media.tenor.com/fajm0GvKOU4AAAAM/sus.gif">
+                <div class = "d-flex flex-column">
+                    <p>Dwayne Johnson</p>
+                    <span>🪨</span>
+                </div>
+            </div>
+            <div class = "d-flex member align-items-center">
+                <img class = "icon im" src = "https://hips.hearstapps.com/hmg-prod/images/gettyimages-1229892983-square.jpg">
+                <div class = "d-flex flex-column">
+                    <p>Elon Musk</p>
+                    <span>murdering twitter</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <script>
     (async () => {
 
         // Main websocket handling
@@ -72,4 +182,4 @@
             console.log(message.data);
         };
     })();
-</script>
+</script> -->
