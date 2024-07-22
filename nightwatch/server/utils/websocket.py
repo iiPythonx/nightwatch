@@ -30,4 +30,4 @@ class NightwatchClient():
     # Handle user data (ie. name and color)
     def set_user_data(self, data: dict[str, Any]) -> None:
         self.user_data = data
-        self.state.clients[self.client] = data["name"]
+        self.state.clients[self.client] = data["id"]

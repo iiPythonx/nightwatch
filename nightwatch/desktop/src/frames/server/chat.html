@@ -12,9 +12,8 @@
     .server-parent > div {
         padding: 20px;
         border-radius: 15px;
-        background-color: var(--sd-black-d5);;
+        background-color: var(--sd-black-d5);
     }
-    #server-chat { grid-area: 1 / 1 / 6 / 4; }
     #server-info {
         position: relative;
         grid-area: 1 / 4 / 3 / 5;
@@ -56,10 +55,58 @@
     h1, h2, h3, h4, h5, h6, p {
         margin: 0px !important;
     }
+
+    /* Message styling */
+    #server-chat {
+        padding-left: 55px;
+        grid-area: 1 / 1 / 6 / 4;
+    }
+    div.message-group {
+        padding: 10px;
+        position: relative;
+        border-radius: 15px;
+        background-color: var(--sd-black-d10);
+    }
+    div.message-group > img.icon {
+        left: -45px;
+        position: absolute;
+    }
+    div.message-group span.time {
+        color: var(--sd-gray-d10);
+        font-size: 12px;
+        margin-left: 5px;
+    }
 </style>
 <div class = "server-parent">
-    <div id = "server-chat">
-        <h4>Chat</h4>
+    <div id = "server-chat" class = "d-flex gap-2 flex-column">
+        <div class = "message-group">
+            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+            <div class = "d-flex gap-2 align-items-center">
+                <b>iiPythonx</b>
+                <span class = "time">Today at 4:17 PM</span>
+            </div>
+            <p>some random ass text here</p>
+            <p>and another line</p>
+            <p>yeah i really dk what im doing but oh well</p>
+            <p><a href = "https://iipython.dev">https://iipython.dev</a></p>
+        </div>
+        <div class = "message-group">
+            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+            <div class = "d-flex gap-2 align-items-center">
+                <b>your momma</b>
+                <span class = "time">Today at 4:18 PM</span>
+            </div>
+            <p>ooga booga mf</p>
+        </div>
+        <div class = "message-group">
+            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+            <div class = "d-flex gap-2 align-items-center">
+                <b>iiPythonx</b>
+                <span class = "time">Today at 4:20 PM</span>
+            </div>
+            <p><i>gasps</i></p>
+            <p>omg 4:20 pm lmao!!!</p>
+        </div>
     </div>
     <div id = "server-info">
         <img class = "banner" src = "https://media.discordapp.net/attachments/990375009916694548/1264376272465952871/image.png?ex=669da5aa&is=669c542a&hm=8581db9e94a248dfe7f76a614151b6904a115a5889ab32e53934a2cd867de05f&=&format=webp&quality=lossless">
@@ -108,7 +155,7 @@
         </div>
     </div>
 </div>
-<!-- <script>
+<script>
     (async () => {
 
         // Main websocket handling
@@ -154,14 +201,14 @@
             }
 
             // Main events
-            identify() {
-                // this.send_payload("identify", {
-                //     auth_server: nightwatch.auth_server,
-                //     token: nightwatch.authorize(this.url.slice(0, -8))
-                // });
-                return new Promise((resolve) => {
-                    this.send_payload("identify", { name: "iiPythonx", color: "#126bf1" }, resolve);
-                });
+            async identify() {
+                const authorization = await nightwatch.authorize(`https://${this.url.slice(0, -8)}`);
+                if (authorization.code !== 200) return notifier.alert(`Failed to authorize server: ${authorization.data}`);
+                this.send_payload("identify", {
+                    auth_server: `https://${nightwatch.auth_server}`,
+                    token: authorization.data
+                }, (d) => console.log(d));
+                notifier.info(`Authorized with ${authorization.data}.`)
             }
 
             message(content) {
@@ -182,4 +229,4 @@
             console.log(message.data);
         };
     })();
-</script> -->
+</script>

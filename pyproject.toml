@@ -35,16 +35,21 @@ dependencies = [
 
 [project.optional-dependencies]
 serve = [
-    "anyio",
-    "uvloop",
+
+    # Authentication
     "fastapi",
     "pymongo",
-    "pydantic",
-    "broadcaster",
-    "pydantic-extra-types",
-    "starlette",
     "argon2-cffi",
-    "redis[hiredis]",
+
+    # Chat server
+    "anyio",
+    "uvloop",
+    "broadcaster",
+    "httpx[http2]",  # For validating user information
+
+    # Global
+    "pydantic",
+    "starlette",
     "uvicorn[standard]"
 ]
 
