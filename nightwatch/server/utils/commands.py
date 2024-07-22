@@ -2,6 +2,7 @@
 
 # Modules
 import json
+from time import time
 from typing import Callable
 
 import httpx
@@ -27,6 +28,13 @@ class CommandRegistry():
         return callback
 
 registry, http_client = CommandRegistry(), httpx.AsyncClient()
+
+# Handle messaging
+async def message(channel: str, user: dict[str, str | None], text: str) -> None:
+    await broadcast.publish(channel, orjson.dumps({
+        "type": "message",
+        "data": {"text": text, "user": user, "timestamp": time() * 1000}
+    }).decode())
 
 # Setup commands
 @registry.command("identify")
@@ -74,20 +82,14 @@ async def command_identify(state, client: NightwatchClient, data: models.Identif
     client.identified = True
 
     await client.send("server", name = Constant.SERVER_NAME, online = len(state.clients))
-    await broadcast.publish("general", orjson.dumps({
-        "type": "message",
-        "data": {"text": f"@{user_data['id']} joined the chatroom.", "user": Constant.SERVER_USER}
-    }).decode())
+    await message("general", Constant.SERVER_USER, f"@{user_data['id']} joined the chatroom.")
 
 @registry.command("message")
 async def command_message(state, client: NightwatchClient, data: models.MessageModel) -> None:
     if not client.identified:
         return await client.send("error", text = "You must identify before sending a message.")
 
-    await broadcast.publish("general", orjson.dumps({
-        "type": "message",
-        "data": {"text": data.text, "user": client.user_data}
-    }).decode())
+    await message("general", client.user_data, data.text)
 
 @registry.command("members")
 async def command_members(state, client: NightwatchClient) -> None:

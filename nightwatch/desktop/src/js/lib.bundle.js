@@ -6,3 +6,12 @@ var AWN;(()=>{var e={628:(e,t,s)=>{"use strict";s.d(t,{default:()=>m});const i={
 
 // https://github.com/iiPythonx/nightwatch/blob/release/nightwatch/desktop/src/js/lib/nanoid.min.js
 let a="useandom-26T198340PX75pxJACKVERYMINDBUSHWOLF_GQZbfghjklqvwyzrict";const nanoid=(e=21)=>{let t="",r=crypto.getRandomValues(new Uint8Array(e));for(let n=0;n<e;n++)t+=a[63&r[n]];return t};
+
+// date handling
+function relativeTimeFormat(timestamp) {
+    const date = new Date(timestamp);
+    const time = date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+    if (date.toDateString() == (new Date()).toDateString()) return `Today at ${time}`;
+    if (date.toDateString() == (new Date(Date.now() - 86400000)).toDateString()) return `Yesterday at ${time}`;
+    return `${date.toLocaleDateString("en-US")} ${time}`;
+}

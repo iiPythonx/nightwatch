@@ -58,7 +58,8 @@
 
     /* Message styling */
     #server-chat {
-        padding-left: 55px;
+        padding: 0px;
+        position: relative;
         grid-area: 1 / 1 / 6 / 4;
     }
     div.message-group {
@@ -76,36 +77,74 @@
         font-size: 12px;
         margin-left: 5px;
     }
+    #chat-input {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 15px;
+        padding: 10px;
+        width: calc(100% - 40px);
+        position: absolute;
+        border-radius: 8px;
+        background-color: var(--sd-black-d10);
+    }
+    #chat-input > input {
+        width: 100%;
+        border: none;
+        outline: none;
+        color: var(--sd-white);
+        background: transparent;
+    }
+    #message-contain {
+        overflow-y: scroll;
+        padding: 20px;
+        padding-left: 45px;
+        max-height: calc(100% - 80px);
+
+        /* Scrollbar */
+        scrollbar-color: var(--sd-black-d10) transparent;
+        scrollbar-gutter: stable both-edges;
+        scrollbar-width: thin;
+    }
 </style>
 <div class = "server-parent">
-    <div id = "server-chat" class = "d-flex gap-2 flex-column">
-        <div class = "message-group">
-            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
-            <div class = "d-flex gap-2 align-items-center">
-                <b>iiPythonx</b>
-                <span class = "time">Today at 4:17 PM</span>
+    <div id = "server-chat">
+        <div id = "message-contain" class = "d-flex gap-2 flex-column">
+            <div class = "message-group">
+                <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                <div class = "d-flex gap-2 align-items-center">
+                    <b>iiPythonx</b>
+                    <span class = "time">Today at 4:17 PM</span>
+                </div>
+                <p>some random ass text here</p>
+                <p>and another line</p>
+                <p>yeah i really dk what im doing but oh well</p>
+                <p><a href = "https://iipython.dev">https://iipython.dev</a></p>
             </div>
-            <p>some random ass text here</p>
-            <p>and another line</p>
-            <p>yeah i really dk what im doing but oh well</p>
-            <p><a href = "https://iipython.dev">https://iipython.dev</a></p>
+            <div class = "message-group">
+                <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                <div class = "d-flex gap-2 align-items-center">
+                    <b>your momma</b>
+                    <span class = "time">Today at 4:18 PM</span>
+                </div>
+                <p>ooga booga mf</p>
+            </div>
+            <div class = "message-group">
+                <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                <div class = "d-flex gap-2 align-items-center">
+                    <b>iiPythonx</b>
+                    <span class = "time">Today at 4:20 PM</span>
+                </div>
+                <p><i>gasps</i></p>
+                <p>omg 4:20 pm lmao!!!</p>
+            </div>
         </div>
-        <div class = "message-group">
-            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
-            <div class = "d-flex gap-2 align-items-center">
-                <b>your momma</b>
-                <span class = "time">Today at 4:18 PM</span>
-            </div>
-            <p>ooga booga mf</p>
-        </div>
-        <div class = "message-group">
-            <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
-            <div class = "d-flex gap-2 align-items-center">
-                <b>iiPythonx</b>
-                <span class = "time">Today at 4:20 PM</span>
-            </div>
-            <p><i>gasps</i></p>
-            <p>omg 4:20 pm lmao!!!</p>
+        <div id = "chat-input" class = "d-flex gap-2">
+            <input type = "text" placeholder = "Share some thoughts...">
+            <button class = "btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-send" viewBox="0 0 16 16">
+                    <path d="M15.854.146a.5.5 0 0 1 .11.54l-5.819 14.547a.75.75 0 0 1-1.329.124l-3.178-4.995L.643 7.184a.75.75 0 0 1 .124-1.33L15.314.037a.5.5 0 0 1 .54.11ZM6.636 10.07l2.761 4.338L14.13 2.576zm6.787-8.201L1.591 6.602l4.339 2.76z"/>
+                </svg>
+            </button>
         </div>
     </div>
     <div id = "server-info">
@@ -207,8 +246,7 @@
                 this.send_payload("identify", {
                     auth_server: `https://${nightwatch.auth_server}`,
                     token: authorization.data
-                }, (d) => console.log(d));
-                notifier.info(`Authorized with ${authorization.data}.`)
+                });
             }
 
             message(content) {
@@ -220,13 +258,63 @@
         if (!nightwatch.active_server) return;
         const socket = new NightwatchWebsocket(nightwatch.active_server);
         socket.on_error = () => console.error("Connection to server failed.");
-        socket.connected = async () => {
-            console.log(await socket.identify());
-        };
+        socket.connected = socket.identify;
 
         // Handle messages
-        socket.on_message = (message) => {
-            console.log(message.data);
+        const chat = document.getElementById("message-contain");
+        function scroll(group) {
+            const newMessageHeight = group.offsetHeight + parseInt(getComputedStyle(group).marginBottom);
+            const scrollOffset = chat.scrollTop + chat.offsetHeight;
+            console.log(newMessageHeight, scrollOffset + 10, chat.scrollTop, chat.offsetHeight);
+            if (chat.scrollHeight - newMessageHeight <= scrollOffset + 10) chat.scrollTop = chat.scrollHeight;
+        }
+
+        const mention_regex = /(?:\s|^)@([a-z0-9-_]+?):(\S{1,254}?)(?:\s|$)/;  // Thanks DmmD :3
+        socket.on_message = (payload) => {
+            console.log("[Received]", payload);
+            switch (payload.type) {
+                case "message":
+                    const message = payload.data;
+    
+                    // Create message element
+                    const message_element = document.createElement("p");
+                    message_element.innerText = message.text;
+    
+                    // Create new message group (if needed)
+                    const last = chat.lastElementChild;
+                    if (last && last.getAttribute("nightwatch-userid") === message.user.id) {
+                       last.appendChild(message_element);
+                       return scroll(last);
+                    }
+    
+                    const group = document.createElement("div");
+                    group.classList.add("message-group");
+                    group.innerHTML = `
+                        <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                        <div class = "d-flex gap-2 align-items-center">
+                            <b>${message.user.username}</b>
+                            <span class = "time">${relativeTimeFormat(message.timestamp)}</span>
+                        </div>
+                    `;
+                    group.setAttribute("nightwatch-userid", message.user.id);
+                    group.appendChild(message_element);
+                    chat.appendChild(group);
+                    
+                    // Autoscrolling
+                    scroll(group);
+            }
         };
+
+        // Handle sending messages
+        const chat_input = document.querySelector("#chat-input input");
+        function send_current_message() {
+            const message = chat_input.value;
+            if (!message.trim()) return;
+            socket.message(message);
+            chat_input.value = "";
+        }
+
+        chat_input.addEventListener("keydown", (e) => { if (e.key === "Enter") send_current_message(); });
+        document.querySelector("#chat-input button").addEventListener("click", send_current_message);
     })();
 </script>
