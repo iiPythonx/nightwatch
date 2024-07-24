@@ -1,18 +1,19 @@
 <div id = "failure"></div>
 <script>
     (() => {
+        const { auth } = nightwatch;
         document.getElementById("failure").innerHTML = `
             <h5>Login Failure</h5>
             <hr>
             <p>
-                The authentication server you use (${nightwatch.auth_server}) has failed to authenticate you. <br>
-                Error details: <code>${nightwatch._error.message}</code>
+                The authentication server you use (${auth.auth_server}) has failed to authenticate you. <br>
+                Error details: <code>${auth._error.message}</code>
             </p>
             <div class = "d-flex justify-content-end gap-2">
                 <button class = "btn btn-secondary" onclick = "load_frame_as_modal('settings');">Settings</button>
                 <button class = "btn btn-danger" onclick = "load_frame('auth/login');">Relogin</button>
             </div>
         `;
-        delete nightwatch._error;
+        delete auth._error;
     })();
 </script>

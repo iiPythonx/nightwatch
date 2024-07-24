@@ -13,8 +13,9 @@
     </div>
 </div>
 <script>
+    const { frame } = nightwatch;
     document.getElementById("continue").addEventListener("click", () => {
         localStorage.setItem("acknowledged", "1");
-        load_frame_as_modal("server/add");
+        frame.load_as_modal("server/add");
     });
 </script>

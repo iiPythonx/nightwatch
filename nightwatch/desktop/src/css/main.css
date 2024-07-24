@@ -31,7 +31,6 @@ body {
     background-color: var(--sd-black-d10);
 }
 ul.nav {
-    gap: 10px;
     margin-top: 10px;
     margin-left: 10px;
     margin-right: 10px;
@@ -63,8 +62,8 @@ ul.nav {
 
 /* Popper popups */
 div.nw-tooltip {
-    background: #222;
-    color: white;
+    background: var(--sd-black-d5);
+    color: var(--sd-white);
     font-weight: bold;
     padding: 5px;
     border-radius: 4px;

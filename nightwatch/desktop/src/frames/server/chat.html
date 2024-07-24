@@ -196,6 +196,7 @@
 </div>
 <script>
     (async () => {
+        const { auth } = nightwatch;
 
         // Main websocket handling
         class NightwatchWebsocket {
@@ -241,10 +242,10 @@
 
             // Main events
             async identify() {
-                const authorization = await nightwatch.authorize(`https://${this.url.slice(0, -8)}`);
-                if (authorization.code !== 200) return notifier.alert(`Failed to authorize server: ${authorization.data}`);
+                const authorization = await auth.authorize(`https://${this.url.slice(0, -8)}`);
+                if (authorization.code !== 200) return console.error(`Failed to authorize server: ${authorization.data}`);
                 this.send_payload("identify", {
-                    auth_server: `https://${nightwatch.auth_server}`,
+                    auth_server: `https://${auth.server}`,
                     token: authorization.data
                 });
             }
@@ -265,7 +266,6 @@
         function scroll(group) {
             const newMessageHeight = group.offsetHeight + parseInt(getComputedStyle(group).marginBottom);
             const scrollOffset = chat.scrollTop + chat.offsetHeight;
-            console.log(newMessageHeight, scrollOffset + 10, chat.scrollTop, chat.offsetHeight);
             if (chat.scrollHeight - newMessageHeight <= scrollOffset + 10) chat.scrollTop = chat.scrollHeight;
         }
 

@@ -1,10 +1,30 @@
 <div>
-    <h5>Settings</h5>
+    <h5>Client Settings</h5>
     <hr>
-    <p>This is eventually where settings will go.</p>
+    <div id = "settings-container">
+        <div class = "d-flex justify-content-between">
+            <p>Auth Server</p>
+            <input value = "auth.iipython.dev">
+        </div>
+    </div>
     <hr>
     <div class = "d-flex justify-content-end gap-2">
         <button class = "btn btn-secondary" onclick = "close_modal();">Close</button>
         <button class = "btn btn-success" onclick = "close_modal();">Save</button>
     </div>
 </div>
+<!-- <script>
+    (() => {
+        const settings = [
+            {
+                id: "auth_server",
+                name: "Auth Server",
+                html: `<input>`
+            }
+        ]
+        for (const setting of settings) {
+            const element = document.createElement("div");
+            element.classList.add("d-flex justify-content-end")
+        }
+    })();
+</script> -->
