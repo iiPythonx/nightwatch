@@ -1,30 +1,137 @@
-<div>
-    <h5>Client Settings</h5>
-    <hr>
-    <div id = "settings-container">
-        <div class = "d-flex justify-content-between">
-            <p>Auth Server</p>
-            <input value = "auth.iipython.dev">
-        </div>
+<style>
+    div.setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    div.setting h6 {
+        margin: 0px;
+        height: fit-content;
+    }
+    div.flow-group {
+        gap: 1rem;
+        display: flex;
+        flex-direction: column;
+    }
+    div.flow-group > h4 {
+        display: flex;
+        justify-content: center;
+    }
+    div#settings-modal {
+        width: 400px;
+    }
+</style>
+<div id = "settings-modal">
+    <div class = "flow-group gap-4">
+        <div class = "flow-group" id = "settings-container"></div>
     </div>
     <hr>
     <div class = "d-flex justify-content-end gap-2">
-        <button class = "btn btn-secondary" onclick = "close_modal();">Close</button>
-        <button class = "btn btn-success" onclick = "close_modal();">Save</button>
+        <button class = "btn btn-secondary" onclick = "nightwatch.frame.close_modal();">Close</button>
+        <button class = "btn btn-success" id = "settings-save">Save</button>
     </div>
 </div>
-<!-- <script>
+<script>
     (() => {
+        const { frame } = nightwatch;
+
+        /*
+            Schema
+            ========================
+
+            setting.type?: string
+            setting.name: string
+            setting.id?: string
+            setting.html?: string
+        */
+
+        // Settings definition
         const settings = [
+            {
+                type: "seperator",
+                name: "Authentication"
+            },
             {
                 id: "auth_server",
                 name: "Auth Server",
-                html: `<input>`
+                html: `<input class = "form-control w-50">`,
+                default: "auth.iipython.dev"
+            },
+            {
+                name: "Profile Picture",
+                html: `<img src = "https://google.com/favicon.ico" class = "icon im" style = "cursor: pointer;">`,
+                init: (element, value) => {
+                    element.addEventListener("click", () => {
+                        const input = document.createElement("input");
+                        input.type = "file";
+                        input.addEventListener("change", (e) => {
+                            const file = e.target.files[0];
+                            console.log(file.name);
+                            input.remove();
+                        })
+                        input.addEventListener("cancel", input.remove);
+                        input.click();
+                    });
+                }
+            },
+            {
+                type: "seperator",
+                name: "Appearance"
+            },
+            {
+                id: "font_family",
+                name: "Font Family",
+                html: `<input class = "form-control w-50">`,
+                default: `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
             }
-        ]
+        ];
+
+        // Handle loading in settings
+        const settings_element = document.getElementById("settings-container");
         for (const setting of settings) {
+
+            // Handle seperators
+            if (setting.type === "seperator") {
+                const element = document.createElement("h4");
+                element.innerText = setting.name;
+                settings_element.appendChild(element);
+                continue;
+            }
+
+            // Handle setting element
             const element = document.createElement("div");
-            element.classList.add("d-flex justify-content-end")
+            element.classList.add("setting");
+            element.innerHTML = `
+                <h6>${setting.name}</h6>
+                ${setting.html}
+            `;
+            settings_element.appendChild(element);
+
+            // Handle data initialization
+            const value = setting.id ? localStorage.getItem(setting.id) : null;
+            const data_element = element.lastElementChild;
+
+            if (setting.init) {
+                setting.init(data_element, value);
+            } else {
+                data_element.value = value || setting.default;
+            }
+            setting.element = data_element;
+
         }
+        
+        // Handle saving settings
+        function save_settings() {
+            for (const setting of settings) {
+                if (setting.type === "seperator" || !setting.id) continue;
+                const value = setting.save ? setting.save(setting.element) : setting.element.value;
+                localStorage.setItem(setting.id, value);
+            }
+        }
+        document.getElementById("settings-save").addEventListener("click", () => {
+            save_settings();
+            frame.close_modal();
+        });
+        save_settings();
     })();
-</script> -->
+</script>

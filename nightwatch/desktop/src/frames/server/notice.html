@@ -8,14 +8,16 @@
         hosted on these servers.
     </p>
     <div class = "d-flex justify-content-end gap-2">
-        <button class = "btn btn-secondary" onclick = "close_modal();">Back</button>
+        <button class = "btn btn-secondary" onclick = "nightwatch.frame.close_modal();">Back</button>
         <button class = "btn btn-danger" id = "continue">Continue</button>
     </div>
 </div>
 <script>
-    const { frame } = nightwatch;
-    document.getElementById("continue").addEventListener("click", () => {
-        localStorage.setItem("acknowledged", "1");
-        frame.load_as_modal("server/add");
-    });
+    (() => {
+        const { frame } = nightwatch;
+        document.getElementById("continue").addEventListener("click", () => {
+            localStorage.setItem("acknowledged", "1");
+            frame.load_as_modal("server/add");
+        });
+    })
 </script>

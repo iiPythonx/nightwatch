@@ -75,6 +75,20 @@ div.nw-tooltip p {
     margin: 0px;
 }
 
+/* Handle icons */
+.icon {
+    object-fit: cover;
+    border-radius: 50%;
+}
+.icon.is {
+    width: 25px;
+    height: 25px;
+}
+.icon.im {
+    width: 35px;
+    height: 35px;
+}
+
 /* Custom element colors based on Soda */
 #authServer {
     cursor: pointer;
