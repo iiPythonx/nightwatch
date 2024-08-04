@@ -74,7 +74,10 @@ async def command_identify(state, client: NightwatchClient, data: models.Identif
             return await client.send("error", text = "Failed to connect to domain for well-known check.")
 
     # Handle user data
-    user_data = {"username": username, "domain": domain, "id": f"{username}:{domain}"}
+    user_data = {
+        "username": username, "domain": domain,
+        "id": f"{username}:{domain}", "picture": f"https://{data.auth_server.host}/cdn/pfp/{username}"
+    }
     if user_data["id"] in state.clients.values():
         return await client.send("error", text = "You have already identified.")
 
@@ -83,6 +86,11 @@ async def command_identify(state, client: NightwatchClient, data: models.Identif
 
     await client.send("server", name = Constant.SERVER_NAME, online = len(state.clients))
     await message("general", Constant.SERVER_USER, f"@{user_data['id']} joined the chatroom.")
+
+@registry.command("reload-pfp")
+async def command_reload_pfp(state, client: NightwatchClient) -> None:
+    client.user_data["picture"] = client.user_data["picture"].split("?")[0] + \
+        f"?t={round(time())}"
 
 @registry.command("message")
 async def command_message(state, client: NightwatchClient, data: models.MessageModel) -> None:

@@ -37,9 +37,13 @@ dependencies = [
 serve = [
 
     # Authentication
+    "pillow",
     "fastapi",
     "pymongo",
+    "filetype",
     "argon2-cffi",
+    "python-multipart",
+    "pillow-avif-plugin",
 
     # Chat server
     "anyio",

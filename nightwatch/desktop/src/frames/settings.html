@@ -33,7 +33,7 @@
 </div>
 <script>
     (() => {
-        const { frame } = nightwatch;
+        const { auth, frame, settings } = nightwatch;
 
         /*
             Schema
@@ -46,86 +46,115 @@
         */
 
         // Settings definition
-        const settings = [
-            {
-                type: "seperator",
-                name: "Authentication"
-            },
-            {
-                id: "auth_server",
-                name: "Auth Server",
-                html: `<input class = "form-control w-50">`,
-                default: "auth.iipython.dev"
-            },
-            {
-                name: "Profile Picture",
-                html: `<img src = "https://google.com/favicon.ico" class = "icon im" style = "cursor: pointer;">`,
-                init: (element, value) => {
-                    element.addEventListener("click", () => {
-                        const input = document.createElement("input");
-                        input.type = "file";
-                        input.addEventListener("change", (e) => {
-                            const file = e.target.files[0];
-                            console.log(file.name);
-                            input.remove();
-                        })
-                        input.addEventListener("cancel", input.remove);
-                        input.click();
-                    });
+        const categories = {
+            auth: auth.user ? [
+                {
+                    type: "seperator",
+                    name: "Authentication"
+                },
+                {
+                    id: "auth_server",
+                    name: "Auth Server",
+                    html: `<input class = "form-control w-50">`,
+                    default: "auth.iipython.dev"
+                },
+                {
+                    name: "Profile Picture",
+                    html: `<img src = "${auth.picture}" class = "icon im" style = "cursor: pointer;">`,
+                    init: (element, value) => {
+                        element.addEventListener("click", () => {
+                            const input = document.createElement("input");
+                            input.type = "file";
+                            input.addEventListener("change", (e) => {
+                                const file = e.target.files[0];
+
+                                // Ensure image is somewhat valid
+                                const image = new Image();
+                                image.onload = async () => {
+                                    const data = new FormData();
+                                    data.append("upload", file);
+                                    data.append("token", auth.token);
+                                    const response = await fetch(`https://${auth.server}/api/upload_pfp`, {
+                                        method: "POST",
+                                        body: data
+                                    });
+                                    if (response.status === 200) {
+                                        element.src = auth.generate_pfp_url();
+                                        settings.set_image_url(auth.picture);
+                                        if (nightwatch.active_socket) nightwatch.active_socket.send_payload("reload-pfp");
+                                    }
+                                    URL.revokeObjectURL(image.src);
+                                }
+                                image.onerror = () => {
+                                    console.error("Image provided is not valid.");
+                                    URL.revokeObjectURL(image.src);
+                                }
+                                image.src = URL.createObjectURL(file);
+                                input.remove();
+                            })
+                            input.addEventListener("cancel", input.remove);
+                            input.click();
+                        });
+                    }
                 }
-            },
-            {
-                type: "seperator",
-                name: "Appearance"
-            },
-            {
-                id: "font_family",
-                name: "Font Family",
-                html: `<input class = "form-control w-50">`,
-                default: `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
-            }
-        ];
+            ] : [],
+            appearance: [
+                {
+                    type: "seperator",
+                    name: "Appearance"
+                },
+                {
+                    id: "font_family",
+                    name: "Font Family",
+                    html: `<input class = "form-control w-50">`,
+                    default: `system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", "Noto Sans", "Liberation Sans", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"`
+                }
+            ]
+        };
 
         // Handle loading in settings
         const settings_element = document.getElementById("settings-container");
-        for (const setting of settings) {
+        for (const category in categories) {
+            for (const setting of categories[category]) {
 
-            // Handle seperators
-            if (setting.type === "seperator") {
-                const element = document.createElement("h4");
-                element.innerText = setting.name;
+                // Handle seperators
+                if (setting.type === "seperator") {
+                    const element = document.createElement("h4");
+                    element.innerText = setting.name;
+                    settings_element.appendChild(element);
+                    continue;
+                }
+    
+                // Handle setting element
+                const element = document.createElement("div");
+                element.classList.add("setting");
+                element.innerHTML = `
+                    <h6>${setting.name}</h6>
+                    ${setting.html}
+                `;
                 settings_element.appendChild(element);
-                continue;
+    
+                // Handle data initialization
+                const value = setting.id ? localStorage.getItem(setting.id) : null;
+                const data_element = element.lastElementChild;
+    
+                if (setting.init) {
+                    setting.init(data_element, value);
+                } else {
+                    data_element.value = value || setting.default;
+                }
+                setting.element = data_element;
             }
-
-            // Handle setting element
-            const element = document.createElement("div");
-            element.classList.add("setting");
-            element.innerHTML = `
-                <h6>${setting.name}</h6>
-                ${setting.html}
-            `;
-            settings_element.appendChild(element);
-
-            // Handle data initialization
-            const value = setting.id ? localStorage.getItem(setting.id) : null;
-            const data_element = element.lastElementChild;
-
-            if (setting.init) {
-                setting.init(data_element, value);
-            } else {
-                data_element.value = value || setting.default;
-            }
-            setting.element = data_element;
-
         }
         
         // Handle saving settings
         function save_settings() {
-            for (const setting of settings) {
-                if (setting.type === "seperator" || !setting.id) continue;
-                const value = setting.save ? setting.save(setting.element) : setting.element.value;
-                localStorage.setItem(setting.id, value);
+            for (const category in categories) {
+                for (const setting of categories[category]) {
+                    if (setting.type === "seperator" || !setting.id) continue;
+                    const value = setting.save ? setting.save(setting.element) : setting.element.value;
+                    localStorage.setItem(setting.id, value);
+                }
             }
         }
         document.getElementById("settings-save").addEventListener("click", () => {

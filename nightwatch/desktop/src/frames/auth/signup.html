@@ -8,15 +8,15 @@
     <div class = "mb-4">
         <label for = "passwordInput" class = "form-label">Password</label>
         <input type = "password" class = "form-control" id = "passwordInput" aria-describedby = "authServerNotice">
-        <div id = "authServerNotice" class = "form-text">Signing up on: <span id = "authServer" onclick = "load_frame_as_modal('settings');"></span>.</div>
+        <div id = "authServerNotice" class = "form-text">Signing up on: <span id = "authServer" onclick = "nightwatch.frame.load_as_modal('settings');"></span>.</div>
     </div>
     <div class = "row align-items-center">
         <div class = "col">
-            <a role = "button" class = "text-primary-emphasis" onclick = "load_frame('auth/login');">Login instead</a>
+            <a role = "button" class = "text-primary-emphasis" onclick = "nightwatch.frame.load('auth/login');">Login instead</a>
         </div>
         <div class = "col">
             <div class = "d-flex justify-content-end gap-2">
-                <button class = "btn btn-secondary" onclick = "load_frame_as_modal('settings');" type = "button">Settings</button>
+                <button class = "btn btn-secondary" onclick = "nightwatch.frame.load_as_modal('settings');" type = "button">Settings</button>
                 <button class = "btn btn-primary" type = "submit">Continue</button>
             </div>
         </div>

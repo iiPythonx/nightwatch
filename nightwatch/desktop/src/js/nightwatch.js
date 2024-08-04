@@ -66,6 +66,7 @@ class NightwatchAuthHandler {
             if (response.code === 200)  {
                 this.user = response.data;
                 this.user.id = `${this.user.username}:${this.user.domain}`;
+                this.generate_pfp_url();
                 return;
             }
             this._error = { type: "login", message: response.data };
@@ -96,6 +97,12 @@ class NightwatchAuthHandler {
     }
     async authorize(server) {
         return await this.request("authorize", { token: this.token, server })
+    }
+
+    // Profile pictures
+    generate_pfp_url() {
+        this.picture = `https://${this.server}/cdn/pfp/${this.user.username}?t=${new Date().getTime()}`;
+        return this.picture;
     }
 
     // Logging out

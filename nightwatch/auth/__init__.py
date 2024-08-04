@@ -1,20 +1,33 @@
 # Copyright (c) 2024 iiPython
 
 # Modules
+import io
 import secrets
+from pathlib import Path
+from typing import Annotated
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Form, Request, UploadFile
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 
 import argon2
-from fastapi.responses import JSONResponse
+import filetype
+import pillow_avif  # noqa: F401
+from PIL import Image
 from pymongo import MongoClient
 
 from nightwatch.config import config
 from nightwatch.logging import log
 
 from . import models
+
+# Create upload location
+upload_location = Path(config["server.upload_location"])
+if upload_location.is_file():
+    log.critical("auth", "Provided server upload location already exists is not a directory!")
+
+(upload_location / "pfp").mkdir(exist_ok = True, parents = True)
 
 # Initialization
 class AuthenticationServer(FastAPI):
@@ -153,3 +166,41 @@ async def route_api_login(payload: models.BaseAuthenticationModel) -> JSONRespon
             content = {"code": 403, "data": "Invalid password."},
             status_code = 403
         )
+
+@app.get(path = "/cdn/pfp/{username:str}", response_model = None)
+async def route_get_pfp(username: str) -> FileResponse | RedirectResponse:
+    image_path = upload_location / "pfp" / f"{username}.avif"
+    if not image_path.is_file():
+        return RedirectResponse(
+            url = f"https://ui-avatars.com/api/?background=random&name={username}"
+        )
+
+    return FileResponse(image_path)
+
+@app.post(path = "/api/upload_pfp")
+async def route_upload_pfp(upload: UploadFile, token: Annotated[str, Form()]) -> JSONResponse:
+    response: dict | None = app.db.users.find_one(filter = {"token": token})
+    if response is None:
+        return JSONResponse(
+            content = {"code": 403, "data": "Invalid account token."},
+            status_code = 403
+        )
+
+    upload.file.seek(0, 2)
+    if upload.file.tell() / 1_048_576 > config["server.auth.max_image_size"]:
+        return JSONResponse(
+            content = {"code": 413, "data": "Image provided is above server size limit."},
+            status_code = 413
+        )
+
+    upload.file.seek(0)
+    image_bytes: bytes = await upload.read()
+    if not filetype.is_image(image_bytes):
+        return JSONResponse(
+            content = {"code": 415, "data": "File provided does not appear to be a valid image."},
+            status_code = 415
+        )
+
+    image = Image.open(io.BytesIO(image_bytes))
+    image.save((upload_location / "pfp" / f"{response['username']}.avif"), "avif")
+    return JSONResponse(content = {"code": 200, "data": "Profile picture updated."})

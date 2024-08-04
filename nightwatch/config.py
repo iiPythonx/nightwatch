@@ -5,22 +5,13 @@ import os
 import json
 import typing
 from pathlib import Path
-from getpass import getuser
-
-# Initialization
-config_path = Path.home() / ".config/nightwatch/config.json"
-if os.name == "nt":
-    config_path = Path(f"C:\\Users\\{getuser()}\\AppData\\Local\\Nightwatch\\config.json")
-
-config_path.parent.mkdir(exist_ok = True)
 
 # Configuration class
 class Configuration():
-    def __init__(self, config_path: Path) -> None:
-        self.config, self.config_path = {}, config_path
-        if config_path.is_file():
-            with config_path.open() as fh:
-                self.config = json.loads(fh.read())
+    def __init__(self) -> None:
+        self.config_path = Path.home() / ("AppData/Local/Nightwatch/config.json" if os.name == "nt" else ".config/nightwatch/config.json")
+        self.config_path.parent.mkdir(exist_ok = True)
+        self.config = json.loads(self.config_path.read_text()) if self.config_path.is_file() else {}
 
     def __getitem__(self, item: str) -> typing.Any:
         v = self.config
@@ -41,7 +32,6 @@ class Configuration():
             v = v[k]
 
         v[key.split(".")[-1]] = value
-        with self.config_path.open("w+") as fh:
-            fh.write(json.dumps(self.config, indent = 4))
+        self.config_path.write_text(json.dumps(self.config, indent = 4))
 
-config = Configuration(config_path)
+config = Configuration()

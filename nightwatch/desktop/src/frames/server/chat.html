@@ -248,6 +248,7 @@
         const socket = new NightwatchWebsocket(nightwatch.active_server);
         socket.on_error = () => console.error("Connection to server failed.");
         socket.connected = socket.identify;
+        nightwatch.active_socket = socket;
 
         // Handle messages
         const chat = document.getElementById("message-contain");
@@ -278,7 +279,7 @@
                     const group = document.createElement("div");
                     group.classList.add("message-group");
                     group.innerHTML = `
-                        <img class = "icon im" src = "https://cdn.discordapp.com/avatars/633185043774177280/6a5f84397ba7b5099a84a78102305095.webp?size=80">
+                        <img class = "icon im" src = "${message.user.picture || "https://icons.getbootstrap.com/assets/icons/database.svg"}">
                         <div class = "d-flex gap-2 align-items-center">
                             <b>${message.user.username}</b>
                             <span class = "time">${relativeTimeFormat(message.timestamp)}</span>
