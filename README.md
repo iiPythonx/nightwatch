@@ -10,6 +10,9 @@ The chatting application to end all chatting applications.
 
 # Installation
 
+> [!NOTE]  
+> If you want a Nightwatch experience that "just works", check the [release branch](https://github.com/iiPythonx/nightwatch/tree/release).
+
 As an end-user, you have multiple clients to pick from when it comes to accessing Nightwatch.  
 Here are two of the standard clients for you to choose from:
 - Terminal Client ([based on urwid](https://urwid.org/index.html))
