@@ -215,3 +215,8 @@ async def forward_image(public_url: str) -> Response | JSONResponse:
 
     except RequestException:
         return JSONResponse({"code": 400, "message": "Failed to contact the specified URI."}, status_code = 400)
+
+# Load additional routes
+from nightwatch.rics.routing import (  # noqa: E402
+    files  # noqa: F401
+)

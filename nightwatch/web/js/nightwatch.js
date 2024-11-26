@@ -1,5 +1,6 @@
 // Copyright (c) 2024 iiPython
 
+import FileHandler from "./flows/files.js";
 import ConnectionManager from "./flows/connection.js";
 import { main, grab_data } from "./flows/welcome.js";
 
@@ -24,6 +25,7 @@ const TIME_FORMATTER = new Intl.DateTimeFormat("en-US", {
     hour12: true
 });
 const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
+const FILE_HANDLER = new FileHandler();
 
 (async () => {
     const { username, hex, address } = await grab_data();
@@ -52,9 +54,8 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                             <button id = "leave">LEAVE SERVER</button>
                         </div>
                         <hr>
-                        <div class = "member-list">
-                            <p>Current member list:</p>
-                        </div>
+                        <div class = "member-list"><p></p></div>
+                        <div class = "pending-uploads"></div>
                         <hr>
                         <div class = "user-data">
                             <p>Connected as <span style = "color: #${hex};">${username}</span>.</p>
@@ -62,9 +63,15 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                     </div>
                 `;
 
+                // Handle file uploads
+                FILE_HANDLER.setup(`http${connection.protocol}://${address}`, connection);
+
                 // Handle sending
                 const input = document.getElementById("actual-input");
                 function send_message() {
+                    FILE_HANDLER.upload_pending();
+
+                    // Process text
                     if (!input.value.trim()) return;
                     connection.send({ type: "message", data: { message: input.value } });
                     input.value = "";
@@ -77,7 +84,7 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                     window.location.reload();  // Fight me.
                 });
             },
-            on_message: (message) => {
+            on_message: async (message) => {
                 const current_time = TIME_FORMATTER.format(new Date(message.time * 1000));
 
                 // Check for anything hidden
@@ -105,11 +112,33 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                     // Handle image adjusting
                     const image = dom.querySelector("img");
                     if (image) {
-                        classlist += " has-image";
+                        classlist += " padded";
                         image.src = `http${connection.protocol}://${address}/api/fwd/${btoa(image.src.slice(8))}`;
                         attachment = dom.body.innerHTML;
                     };
                 };
+
+                // Check for files
+                const file_match = attachment.match(new RegExp(`^https?:\/\/${address}\/file\/([a-zA-Z0-9_-]{21})\/.*$`));
+                if (file_match) {
+                    function bytes_to_human(size) {
+                        const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+                        return +((size / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["B", "kB", "MB", "GB"][i];
+                    }
+                    const response = await (await fetch(`http${connection.protocol}://${address}/api/file/${file_match[1]}/info`)).json();
+                    if (response.code === 200) {
+                        const mimetype = FILE_HANDLER.mimetype(response.data.name);
+                        if (["avif", "avifs", "png", "apng", "jpg", "jpeg", "jfif", "webp", "ico", "gif", "svg"].includes(mimetype.toLowerCase())) {
+                            attachment = `<a href = "${attachment}" target = "_blank"><img alt = "${response.data.name}" src = "${attachment}"></a>]`;
+                        } else {
+                            attachment = `<div class = "file">
+                                <div><span>${response.data.name}</span> <span>${mimetype}</span></div>
+                                <div><span>${bytes_to_human(response.data.size)}</span> <button data-uri="${attachment}">Download</button></div>
+                            </div>`;
+                        }
+                        classlist += " padded";
+                    }
+                }
 
                 // Construct message
                 const element = document.createElement("div");
@@ -125,6 +154,10 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                 chat.appendChild(element);
                 chat.scrollTop = chat.scrollHeight;
                 last_author = message.user.name, last_time = current_time;
+
+                // Handle downloading
+                const button = element.querySelector("[data-uri]");
+                if (button) button.addEventListener("click", () => { window.open(button.getAttribute("data-uri"), "_blank"); });
 
                 // Handle notification sound
                 if (!document.hasFocus()) NOTIFICATION_SFX.play();
@@ -143,6 +176,9 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                 element.innerHTML = `→ <span style = "color: #${member.hex}">${member.name}</span>`;
                 element.setAttribute("data-member", member.name);
                 member_list.appendChild(element);
+
+                // Update member count
+                member_list.querySelector("p").innerText = `Members ─ ${member_list.querySelectorAll("& > span").length}`;
             }
         }
     );

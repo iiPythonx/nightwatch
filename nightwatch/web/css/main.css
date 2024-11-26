@@ -99,11 +99,11 @@ input:hover {
     overflow-x: hidden;
     max-width: calc(100% - 300px);
 }
-.message-content.has-image {
+.message-content.padded {
     padding-top: 5px;
     padding-bottom: 5px;
 }
-.message-content.has-image > span > a {
+.message-content.padded > span > a {
     display: flex;
     align-items: center;
 }
@@ -174,4 +174,45 @@ div.server-data {
 }
 div.user-data, #server-name {
     text-align: center;
+}
+
+/* File uploads */
+div.pending-uploads {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+div.pending-uploads > div {
+    display: flex;
+    flex-direction: column;
+}
+div.pending-uploads > div > div {
+    display: flex;
+}
+div.pending-uploads span {
+    flex: 1;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+}
+div.pending-uploads button {
+    padding: 0px;
+    width: 22px;
+    height: 22px;
+}
+div.file {
+    padding: 10px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    border: 1px solid white;
+}
+div.file > div {
+    display: flex;
+    align-items: center;
+}
+div.file span:first-child {
+    flex: 1;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
 }
