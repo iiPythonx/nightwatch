@@ -82,7 +82,6 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
 
                 // Check for anything hidden
                 const hide_author = message.user.name === last_author;
-                last_author = message.user.name, last_time = current_time;
 
                 // Construct text/attachment
                 let attachment = message.message, classlist = "message-content";
@@ -118,13 +117,14 @@ const NOTIFICATION_SFX = new Audio("/audio/notification.mp3");
                 element.innerHTML = `
                     <span style = "color: #${message.user.hex};${hide_author ? 'color: transparent;' : ''}">${message.user.name}</span>
                     <span class = "${classlist}">${attachment}</span>
-                    <span class = "timestamp"${current_time !== last_time ? ' style="color: transparent;"' : ''}>${current_time}</span>
+                    <span class = "timestamp"${current_time === last_time ? ' style="color: transparent;"' : ''}>${current_time}</span>
                 `;
 
                 // Push message and autoscroll
                 const chat = document.querySelector(".chat");
                 chat.appendChild(element);
                 chat.scrollTop = chat.scrollHeight;
+                last_author = message.user.name, last_time = current_time;
 
                 // Handle notification sound
                 if (!document.hasFocus()) NOTIFICATION_SFX.play();
