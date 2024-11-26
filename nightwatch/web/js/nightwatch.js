@@ -5,12 +5,12 @@ import { main, grab_data } from "./flows/welcome.js";
 
 // Leftmark :3
 const leftmark_rules = [
-    { regex: /\*\*(.*?)\*\*/g, replace: "<strong>$1</strong>" },
-    { regex: /__(.*?)__/g, replace: "<u>$1</u>" },
-    { regex: /~~(.*?)~~/g, replace: "<s>$1</s>" },
-    { regex: /\*(.*?)\*/g, replace: "<em>$1</em>" },
-    { regex: /\!\[(.*?)\]\((.*?)\)/g, replace: `<a href = "$2" target = "_blank"><img alt = "$1" src = "$2"></a>` },
-    { regex: /\[(.*?)\]\((.*?)\)/g, replace: `<a href = "$2" target = "_blank" rel = "noreferrer">$1</a>` }
+    { regex: /\*\*((?:[^\\]|\\.)*?)\*\*/g, replace: "<strong>$1</strong>" },
+    { regex: /__((?:[^\\]|\\.)*?)__/g, replace: "<u>$1</u>" },
+    { regex: /~~((?:[^\\]|\\.)*?)~~/g, replace: "<s>$1</s>" },
+    { regex: /\*((?:[^\\]|\\.)*?)\*/g, replace: "<em>$1</em>" },
+    { regex: /\!\[((?:[^\\]|\\.)*?)\]\(((?:[^\\]|\\.)*?)\)/g, replace: `<a href = "$2" target = "_blank"><img alt = "$1" src = "$2"></a>` },
+    { regex: /\[((?:[^\\]|\\.)*?)\]\(((?:[^\\]|\\.)*?)\)/g, replace: `<a href = "$2" target = "_blank" rel = "noreferrer">$1</a>` }
 ];
 
 function leftmark(content) {
