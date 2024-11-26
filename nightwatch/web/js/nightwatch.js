@@ -92,6 +92,7 @@ const FILE_HANDLER = new FileHandler();
 
                 // Construct text/attachment
                 let attachment = message.message, classlist = "message-content";
+                let raw_attachment = attachment;
                 if (attachment.toLowerCase().match(/^https:\/\/[\w\d./-]+.(?:avifs?|a?png|jpe?g|jfif|webp|ico|gif|svg)(?:\?.+)?$/)) {
                     attachment = `![untitled](${attachment})`;
                 }
@@ -119,7 +120,7 @@ const FILE_HANDLER = new FileHandler();
                 };
 
                 // Check for files
-                const file_match = attachment.match(new RegExp(`^https?:\/\/${address}\/file\/([a-zA-Z0-9_-]{21})\/.*$`));
+                const file_match = raw_attachment.match(new RegExp(`^https?:\/\/${address}\/file\/([a-zA-Z0-9_-]{21})\/.*$`));
                 if (file_match) {
                     function bytes_to_human(size) {
                         const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
@@ -129,7 +130,7 @@ const FILE_HANDLER = new FileHandler();
                     if (response.code === 200) {
                         const mimetype = FILE_HANDLER.mimetype(response.data.name);
                         if (["avif", "avifs", "png", "apng", "jpg", "jpeg", "jfif", "webp", "ico", "gif", "svg"].includes(mimetype.toLowerCase())) {
-                            attachment = `<a href = "${attachment}" target = "_blank"><img alt = "${response.data.name}" src = "${attachment}"></a>]`;
+                            attachment = `<a href = "${attachment}" target = "_blank"><img alt = "${response.data.name}" src = "${attachment}"></a>`;
                         } else {
                             attachment = `<div class = "file">
                                 <div><span>${response.data.name}</span> <span>${mimetype}</span></div>
