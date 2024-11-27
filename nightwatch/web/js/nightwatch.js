@@ -92,11 +92,11 @@ const FILE_HANDLER = new FileHandler();
 
                 // Construct text/attachment
                 let attachment = message.message, classlist = "message-content";
-                let raw_attachment = attachment;
-                if (attachment.toLowerCase().match(/^https:\/\/[\w\d./-]+.(?:avifs?|a?png|jpe?g|jfif|webp|ico|gif|svg)(?:\?.+)?$/)) {
+
+                const file_match = attachment.match(new RegExp(`^https?:\/\/${address}\/file\/([a-zA-Z0-9_-]{21})\/.*$`));
+                if (!file_match && attachment.toLowerCase().match(/^https:\/\/[\w\d./-]+.(?:avifs?|a?png|jpe?g|jfif|webp|ico|gif|svg)(?:\?.+)?$/)) {
                     attachment = `![untitled](${attachment})`;
                 }
-
                 // Clean attachment for the love of god
                 const cleaned = attachment.replace(/&/g, "&amp;")
                                 .replace(/</g, "&lt;")
@@ -119,34 +119,12 @@ const FILE_HANDLER = new FileHandler();
                     };
                 };
 
-                // Check for files
-                const file_match = raw_attachment.match(new RegExp(`^https?:\/\/${address}\/file\/([a-zA-Z0-9_-]{21})\/.*$`));
-                if (file_match) {
-                    function bytes_to_human(size) {
-                        const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
-                        return +((size / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["B", "kB", "MB", "GB"][i];
-                    }
-                    const response = await (await fetch(`http${connection.protocol}://${address}/api/file/${file_match[1]}/info`)).json();
-                    if (response.code === 200) {
-                        const mimetype = FILE_HANDLER.mimetype(response.data.name);
-                        if (["avif", "avifs", "png", "apng", "jpg", "jpeg", "jfif", "webp", "ico", "gif", "svg"].includes(mimetype.toLowerCase())) {
-                            attachment = `<a href = "${attachment}" target = "_blank"><img alt = "${response.data.name}" src = "${attachment}"></a>`;
-                        } else {
-                            attachment = `<div class = "file">
-                                <div><span>${response.data.name}</span> <span>${mimetype}</span></div>
-                                <div><span>${bytes_to_human(response.data.size)}</span> <button data-uri="${attachment}">Download</button></div>
-                            </div>`;
-                        }
-                        classlist += " padded";
-                    }
-                }
-
                 // Construct message
                 const element = document.createElement("div");
                 element.classList.add("message");
                 element.innerHTML = `
                     <span style = "color: #${message.user.hex};${hide_author ? 'color: transparent;' : ''}">${message.user.name}</span>
-                    <span class = "${classlist}">${attachment}</span>
+                    <span class = "${classlist}">${file_match ? "Loading attachment..." : attachment}</span>
                     <span class = "timestamp"${current_time === last_time ? ' style="color: transparent;"' : ''}>${current_time}</span>
                 `;
 
@@ -156,12 +134,32 @@ const FILE_HANDLER = new FileHandler();
                 chat.scrollTop = chat.scrollHeight;
                 last_author = message.user.name, last_time = current_time;
 
-                // Handle downloading
-                const button = element.querySelector("[data-uri]");
-                if (button) button.addEventListener("click", () => { window.open(button.getAttribute("data-uri"), "_blank"); });
-
                 // Handle notification sound
                 if (!document.hasFocus()) NOTIFICATION_SFX.play();
+
+                // Check for files
+                if (file_match) {
+                    function bytes_to_human(size) {
+                        const i = size == 0 ? 0 : Math.floor(Math.log(size) / Math.log(1024));
+                        return +((size / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["B", "kB", "MB", "GB"][i];
+                    }
+
+                    const response = await (await fetch(`http${connection.protocol}://${address}/api/file/${file_match[1]}/info`)).json();
+                    if (response.code === 200) {
+                        const message = element.querySelector(".message-content");
+                        const mimetype = FILE_HANDLER.mimetype(response.data.name);
+                        if (["avif", "avifs", "png", "apng", "jpg", "jpeg", "jfif", "webp", "ico", "gif", "svg"].includes(mimetype.toLowerCase())) {
+                            message.innerHTML = `<a href = "${attachment}" target = "_blank"><img alt = "${response.data.name}" src = "${attachment}"></a>`;
+                        } else {
+                            message.innerHTML = `<div class = "file">
+                                <div><span>${response.data.name}</span> <span>${mimetype}</span></div>
+                                <div><span>${bytes_to_human(response.data.size)}</span> <button>Download</button></div>
+                            </div>`;
+                            message.querySelector("button").addEventListener("click", () => { window.open(attachment, "_blank"); });
+                        }
+                        message.classList.add("padded");
+                    }
+                }
             },
             handle_member: (event_type, member) => {
                 const member_list = document.querySelector(".member-list");
