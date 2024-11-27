@@ -147,6 +147,9 @@ div.input-box {
 }
 #actual-input {
     width: 100%;
+
+    /* This is to prevent Fira Code from shifting text around while you're writing */
+    font-family: monospace;
 }
 
 /* Handle sidebar */
