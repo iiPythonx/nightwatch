@@ -28,7 +28,7 @@ if FORWARD_DOMAIN is None:
 @app.get("/api/fwd/{public_url:str}", response_model = None)
 async def forward_image(public_url: str) -> Response | JSONResponse:
     try:
-        new_url = f"https://{base64.b64decode(public_url, validate = True).decode('ascii').rstrip('/')}"
+        new_url = f"https://{base64.b64decode(public_url.replace('_', '/'), validate = True).decode('ascii').rstrip('/')}"
         if FORWARD_DOMAIN and FORWARD_DOMAIN in new_url:
             raise IllegalURL
 

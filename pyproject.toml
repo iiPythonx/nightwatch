@@ -25,20 +25,20 @@ classifiers = [
 ]
 dependencies = [
     "emoji>=2.14.0",
-    "fastapi>=0.115.5",
     "nanoid>=2.0.0",
     "orjson>=3.10.11",
-    "python-multipart>=0.0.17",
     "readchar>=4.2.1",
     "requests>=2.32.3",
     "urwid>=2.6.16",
-    "uvicorn[standard]>=0.32.1",
     "websockets>=14.1",
 ]
 
 [project.optional-dependencies]
 serve = [
+    "fastapi>=0.115.5",
     "pydantic>=2.9.2",
+    "python-multipart>=0.0.17",
+    "uvicorn[standard]>=0.32.1",
 ]
 
 [project.urls]

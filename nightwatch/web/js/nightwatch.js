@@ -114,7 +114,7 @@ const FILE_HANDLER = new FileHandler();
                     const image = dom.querySelector("img");
                     if (image) {
                         classlist += " padded";
-                        image.src = `http${connection.protocol}://${address}/api/fwd/${btoa(image.src.slice(8))}`;
+                        image.src = `http${connection.protocol}://${address}/api/fwd/${btoa(image.src.slice(8)).replace(/\//, "_")}`;
                         attachment = dom.body.innerHTML;
                     };
                 };
@@ -164,9 +164,12 @@ const FILE_HANDLER = new FileHandler();
             handle_member: (event_type, member) => {
                 const member_list = document.querySelector(".member-list");
                 const existing_member = document.querySelector(`[data-member = "${member.name}"]`);
+
+                const update = () => member_list.querySelector("p").innerText = `Members ─ ${member_list.querySelectorAll("& > span").length}`;
+
                 if (event_type === "leave") {
                     if (existing_member) existing_member.remove();
-                    return;
+                    return update();
                 }
                 if (existing_member) return;
 
@@ -175,9 +178,7 @@ const FILE_HANDLER = new FileHandler();
                 element.innerHTML = `→ <span style = "color: #${member.hex}">${member.name}</span>`;
                 element.setAttribute("data-member", member.name);
                 member_list.appendChild(element);
-
-                // Update member count
-                member_list.querySelector("p").innerText = `Members ─ ${member_list.querySelectorAll("& > span").length}`;
+                update();
             }
         }
     );
