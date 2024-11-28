@@ -12,6 +12,7 @@ from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
 from starlette.websockets import WebSocketDisconnect, WebSocketState
 
+from nightwatch import __version__
 from nightwatch.config import fetch_config
 
 # Load config data
@@ -65,7 +66,7 @@ class Client:
             return
 
         try:
-            if self._callback is not None:
+            if self._callback is not None and payload["type"] != "message":
                 payload["data"] = payload.get("data", {}) | {"callback": self._callback}
                 self._callback = None
 
@@ -164,6 +165,8 @@ async def connect_endpoint(
                     continue
 
                 await app.state.broadcast({"type": "message", "data": {"user": client.serialize(), "message": message}})
+                if client._callback is not None:
+                    await client.send({"type": "response"})
 
             case {"type": "user-list", "data": _}:
                 await client.send({"type": "response", "data": {
@@ -179,6 +182,10 @@ async def connect_endpoint(
     client.cleanup()
     await app.state.broadcast({"type": "leave", "data": {"user": client.serialize()}})
     await app.state.broadcast({"type": "message", "data": {"message": f"{client.username} has left the server."}})
+
+@app.get("/api/version")
+async def route_version() -> JSONResponse:
+    return JSONResponse({"code": 200, "data": {"version": __version__}})
 
 # Load additional routes
 from nightwatch.rics.routing import (  # noqa: E402
