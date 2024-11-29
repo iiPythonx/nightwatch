@@ -5,6 +5,10 @@
     font-family: "Fira Code";
     src: url("/fonts/fira.woff2") format("woff2");
 }
+@font-face {
+    font-family: "Fira Mono";
+    src: url("/fonts/fira_mono.woff2") format("woff2");
+}
 
 /* Baselining */
 * {
@@ -147,6 +151,7 @@ div.input-box {
 }
 #actual-input {
     width: 100%;
+    font-family: "Fira Mono";
 }
 
 /* Handle sidebar */

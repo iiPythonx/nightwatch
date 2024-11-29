@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field
 
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect, WebSocketState
 
 from nightwatch import __version__
@@ -19,9 +20,8 @@ from nightwatch.config import fetch_config
 config = fetch_config("rics")
 
 # Initialization
-app = FastAPI(
-    openapi_url = None
-)
+app = FastAPI(openapi_url = None)
+app.add_middleware(CORSMiddleware, allow_origins = ["*"], allow_methods = ["*"])
 
 # Scaffold the application
 app.state.clients = {}
