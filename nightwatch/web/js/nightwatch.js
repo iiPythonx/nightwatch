@@ -51,10 +51,6 @@ const FILE_HANDLER = new FileHandler();
                     case "generic":
                         main.innerHTML = data;
                         break;
-
-                    case "protocol":
-                        main.innerHTML = data.message;
-                        break;
                 }
                 if (connection.websocket.readyState === WebSocket.OPEN) {
                     connection.websocket.close(1000, "The client is terminating this connection due to protocol error.");
@@ -207,7 +203,6 @@ const FILE_HANDLER = new FileHandler();
             }
         }
     );
-    window.connection = connection;
 
     // Handle loading spinner
     main.classList.add("loading");

@@ -80,7 +80,7 @@ export default class ConnectionManager {
                 break;
 
             case "problem":
-                this.callbacks.on_problem({ type: "protocol", data });
+                this.callbacks.on_problem({ type: "generic", data: data.message });
                 break;
         }
     }
