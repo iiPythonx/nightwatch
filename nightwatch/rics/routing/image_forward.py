@@ -6,10 +6,10 @@ import base64
 import binascii
 
 from fastapi import Response
+from requests import RequestException
 from fastapi.responses import JSONResponse
-from requests import Session, RequestException
 
-from nightwatch.rics import app
+from nightwatch.rics import app, session
 from nightwatch.logging import log
 
 # Exceptions
@@ -17,7 +17,6 @@ class IllegalURL(Exception):
     pass
 
 # Handle image forwarding
-SESSION = Session()
 PROXY_SIZE_LIMIT = 10 * (1024 ** 2)
 
 FORWARD_DOMAIN = os.getenv("DOMAIN") 
@@ -40,7 +39,7 @@ async def forward_image(public_url: str) -> Response | JSONResponse:
 
     try:
         data = b""
-        with SESSION.get(new_url, stream = True) as response:
+        with session.get(new_url, stream = True) as response:
             response.raise_for_status()
             for chunk in response.iter_content(PROXY_SIZE_LIMIT):
                 data += chunk

@@ -1,6 +1,7 @@
 // Copyright (c) 2024 iiPython
 
 const CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+const PROTOCOL_VERSION = "0.11.2";
 
 export default class ConnectionManager {
     constructor(payload, callbacks) {
@@ -24,11 +25,24 @@ export default class ConnectionManager {
             this.websocket.addEventListener("message", (e) => this.#on_message(e));
             this.callbacks.on_connect();
         });
-        this.websocket.addEventListener("close", _ => console.warn("Connection closed"));
-        this.websocket.addEventListener("error", e => console.error(e));
+        this.websocket.addEventListener("close", e => this.callbacks.on_problem({ type: "generic", data: e.reason || "Connection was closed." }));
+        this.websocket.addEventListener("error", e => this.callbacks.on_problem({ type: "something", data: e }));
     }
 
     async #authenticate(username, hex) {
+        try {
+            const version_response = await fetch(`http${this.protocol}://${this.url}/api/version`);
+            if (!version_response.ok) return this.callbacks.on_problem({ type: "unknown-version" });
+
+            const info = (await version_response.json()).data;
+            if (PROTOCOL_VERSION.localeCompare(info.version, undefined, { numeric: true, sensitivity: "base" }) === 1) {
+                return this.callbacks.on_problem({ type: "outdated-version", data: { version: info.version, supported: PROTOCOL_VERSION } });
+            }
+
+        } catch (e) {
+            return this.callbacks.on_problem({ type: "unknown-version" });
+        }
+
         const response = await (await fetch(
             `http${this.protocol}://${this.url}/api/join`,
             {
@@ -63,10 +77,10 @@ export default class ConnectionManager {
             case "join":
             case "leave":
                 this.callbacks.handle_member(type, data.user);
-                break
+                break;
 
             case "problem":
-                console.warn({ type, data });
+                this.callbacks.on_problem({ type: "protocol", data });
                 break;
         }
     }

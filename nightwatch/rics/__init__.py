@@ -8,12 +8,14 @@ from secrets import token_urlsafe
 
 from pydantic import BaseModel, Field
 
+from requests import Session
 from fastapi import FastAPI, WebSocket
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.websockets import WebSocketDisconnect, WebSocketState
 
 from nightwatch import __version__
+from nightwatch.logging import log
 from nightwatch.config import fetch_config
 
 # Load config data
@@ -22,6 +24,21 @@ config = fetch_config("rics")
 # Initialization
 app = FastAPI(openapi_url = None)
 app.add_middleware(CORSMiddleware, allow_origins = ["*"], allow_methods = ["*"])
+
+session = Session()
+
+# Check for updates
+app.state.latest_update = None
+if config["enable_update_checking"] is not False:
+    latest = session.get("https://api.github.com/repos/iiPythonx/nightwatch/releases/latest").json()
+
+    def version(v: str) -> tuple:
+        return tuple(map(int, v.split(".")))
+
+    if version(latest["name"][1:]) > version(__version__):
+        log.info("update", f"Nightwatch {latest['name']} is now available, upgrading is recommended.")
+        log.info("update", f"See the changelog at {latest['html_url']}.")
+        app.state.latest_update = latest["name"][1:]
 
 # Scaffold the application
 app.state.clients = {}
@@ -43,7 +60,7 @@ app.state.broadcast = broadcast
 
 # Setup routing
 class Client:
-    def __init__(self, websocket: WebSocket, user_data) -> None:
+    def __init__(self, websocket: WebSocket, user_data: dict[str, typing.Any]) -> None:
         self.websocket = websocket
         self.username, self.hex_code = user_data["username"], user_data["hex"]
 
@@ -94,6 +111,9 @@ class Client:
 
         except WebSocketDisconnect:
             pass
+
+        except Exception:
+            await self.websocket.close(1002, "Some data parsing issue occured, check your payloads.")
 
         return None
 
@@ -185,7 +205,7 @@ async def connect_endpoint(
 
 @app.get("/api/version")
 async def route_version() -> JSONResponse:
-    return JSONResponse({"code": 200, "data": {"version": __version__}})
+    return JSONResponse({"code": 200, "data": {"version": __version__, "latest": app.state.latest_update}})
 
 # Load additional routes
 from nightwatch.rics.routing import (  # noqa: E402

@@ -37,6 +37,31 @@ const FILE_HANDLER = new FileHandler();
     const connection = new ConnectionManager(
         { username, hex, address },
         {
+            on_problem: ({ type, data }) => {
+                main.classList = "loading", main.style.width = "520px";
+                switch (type) {
+                    case "outdated-version":
+                        main.innerHTML = `This client is too new to connect.<br>RICS version ${data.version}, client version >= ${data.supported}`;
+                        break;
+
+                    case "unknown-version":
+                        main.innerHTML = `Trying to fetch the RICS version failed.<br>The server might be offline, or it might be too old.`;
+                        break;
+
+                    case "generic":
+                        main.innerHTML = data;
+                        break;
+
+                    case "protocol":
+                        main.innerHTML = data.message;
+                        break;
+                }
+                if (connection.websocket.readyState === WebSocket.OPEN) {
+                    connection.websocket.close(1000, "The client is terminating this connection due to protocol error.");
+                    connection.callbacks.on_problem = () => {};  // Silence the close message
+                };
+                console.error(type, data);
+            },
             on_connect: () => {
                 main.classList.remove("loading");
                 main.classList.add("full-layout");
@@ -182,6 +207,7 @@ const FILE_HANDLER = new FileHandler();
             }
         }
     );
+    window.connection = connection;
 
     // Handle loading spinner
     main.classList.add("loading");
