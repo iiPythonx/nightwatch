@@ -112,7 +112,7 @@ name = "click"
 version = "8.1.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "colorama", marker = "platform_system == 'Windows'" },
+    { name = "colorama", marker = "sys_platform == 'win32'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/96/d3/f04c7bfcf5c1862a2a5b845c6b2b360488cf47af55dfa79c98f6a6bf98b5/click-8.1.7.tar.gz", hash = "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de", size = 336121 }
 wheels = [
@@ -215,6 +215,11 @@ wheels = [
 ]
 
 [[package]]
+name = "indigo-logger"
+version = "0.2.3"
+source = { git = "https://github.com/iiPythonx/il#747d14ddc3d57b92e4ae6cb55154a3d6ab053cb8" }
+
+[[package]]
 name = "nanoid"
 version = "2.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -225,38 +230,40 @@ wheels = [
 
 [[package]]
 name = "nightwatch-chat"
-version = "0.10.7"
+version = "0.11.3"
 source = { editable = "." }
 dependencies = [
     { name = "emoji" },
-    { name = "fastapi" },
     { name = "nanoid" },
     { name = "orjson" },
-    { name = "python-multipart" },
     { name = "readchar" },
     { name = "requests" },
     { name = "urwid" },
-    { name = "uvicorn", extra = ["standard"] },
     { name = "websockets" },
 ]
 
 [package.optional-dependencies]
 serve = [
+    { name = "fastapi" },
+    { name = "indigo-logger" },
     { name = "pydantic" },
+    { name = "python-multipart" },
+    { name = "uvicorn", extra = ["standard"] },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "emoji", specifier = ">=2.14.0" },
-    { name = "fastapi", specifier = ">=0.115.5" },
+    { name = "fastapi", marker = "extra == 'serve'", specifier = ">=0.115.5" },
+    { name = "indigo-logger", marker = "extra == 'serve'", git = "https://github.com/iiPythonx/il" },
     { name = "nanoid", specifier = ">=2.0.0" },
     { name = "orjson", specifier = ">=3.10.11" },
     { name = "pydantic", marker = "extra == 'serve'", specifier = ">=2.9.2" },
-    { name = "python-multipart", specifier = ">=0.0.17" },
+    { name = "python-multipart", marker = "extra == 'serve'", specifier = ">=0.0.17" },
     { name = "readchar", specifier = ">=4.2.1" },
     { name = "requests", specifier = ">=2.32.3" },
     { name = "urwid", specifier = ">=2.6.16" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.32.1" },
+    { name = "uvicorn", extras = ["standard"], marker = "extra == 'serve'", specifier = ">=0.32.1" },
     { name = "websockets", specifier = ">=14.1" },
 ]
 

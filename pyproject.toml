@@ -9,6 +9,9 @@ exclude = ["nightwatch/desktop"]
 [tool.hatch.version]
 path = "nightwatch/__init__.py"
 
+[tool.uv.sources]
+indigo-logger = { git = "https://github.com/iiPythonx/il" }
+
 [project]
 name = "nightwatch-chat"
 dynamic = ["version"]
@@ -36,6 +39,7 @@ dependencies = [
 [project.optional-dependencies]
 serve = [
     "fastapi>=0.115.5",
+    "indigo-logger",
     "pydantic>=2.9.2",
     "python-multipart>=0.0.17",
     "uvicorn[standard]>=0.32.1",
