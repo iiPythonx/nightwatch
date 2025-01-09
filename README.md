@@ -63,6 +63,6 @@ Configuration is available at:
 - ***nix systems**: ~/.config/nightwatch
 - **Windows**: %LocalAppData%\Nightwatch
 
-Client (terminal) configuration is available at `client.json`, while the server configuration is stored in `server.json`.  
+Client (terminal) configuration is available at `client.json`, while the server configuration is stored in `rics.json`.  
 The Nightwatch client uses the JSON for username, coloring, and more. Check the `/config` command for more information. 
 The backend chat server uses the config file for the server name, although more is sure to come.

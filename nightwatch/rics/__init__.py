@@ -173,6 +173,7 @@ async def connect_endpoint(
     }})
 
     # Broadcast join
+    log.info("ws", f"{client.username} has joined the server.")
     await app.state.broadcast({"type": "join", "data": {"user": client.serialize()}})
     await app.state.broadcast({"type": "message", "data": {"message": f"{client.username} has joined the server."}})
 
@@ -184,6 +185,7 @@ async def connect_endpoint(
                     await client.send({"type": "problem", "data": {"message": "You cannot send a blank message."}})
                     continue
 
+                log.info("ws", f"{client.username}: {message}")
                 await app.state.broadcast({"type": "message", "data": {"user": client.serialize(), "message": message}})
                 if client._callback is not None:
                     await client.send({"type": "response"})
@@ -202,6 +204,7 @@ async def connect_endpoint(
     client.cleanup()
     await app.state.broadcast({"type": "leave", "data": {"user": client.serialize()}})
     await app.state.broadcast({"type": "message", "data": {"message": f"{client.username} has left the server."}})
+    log.info("ws", f"{client.username} has left the server.")
 
 @app.get("/api/version")
 async def route_version() -> JSONResponse:
